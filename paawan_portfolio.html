@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paawan | Financial Analysis & Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --danger-color: #ea4335;
+            --bg-dark: #0f1419;
+            --bg-light: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent: #4f46e5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Sections */
+        section {
+            display: none;
+            padding: 3rem 0;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent));
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--primary-color);
+        }
+
+        /* Portfolio Section */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .portfolio-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .portfolio-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Analysis Tools */
+        .analysis-tool {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(26, 115, 232, 0.2);
+        }
+
+        .result-box {
+            background: rgba(52, 168, 83, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+        }
+
+        .result-box h4 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Games */
+        .game-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .game-card {
+            aspect-ratio: 1;
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .game-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(31, 41, 55, 1);
+        }
+
+        .tictac-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            max-width: 300px;
+            margin: 1rem auto;
+        }
+
+        .tictac-cell {
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .tictac-cell:hover {
+            background: rgba(26, 115, 232, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .snake-canvas {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: block;
+            margin: 1rem auto;
+            border-radius: 8px;
+        }
+
+        /* Content/Blog */
+        .blog-post {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .blog-post h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Analytics */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .analytics-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .chart-placeholder {
+            background: rgba(255, 255, 255, 0.03);
+            height: 250px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            margin: 1.5rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .tictac-cell {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">PAAWAN</div>
+            <ul>
+                <li><a onclick="showSection('home')">Home</a></li>
+                <li><a onclick="showSection('portfolio')">Portfolio</a></li>
+                <li><a onclick="showSection('analysis')">Analysis</a></li>
+                <li><a onclick="showSection('games')">Games</a></li>
+                <li><a onclick="showSection('content')">Content</a></li>
+                <li><a onclick="showSection('analytics')">Analytics</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Home Section -->
+    <section id="home" class="active">
+        <div class="container">
+            <div class="hero">
+                <h1>Welcome to Paawan's Hub</h1>
+                <p>Financial Analysis | Investment Insights | Interactive Tools</p>
+                <div class="cta-buttons">
+                    <button onclick="showSection('analysis')">Explore Analysis Tools</button>
+                    <button class="btn-secondary" onclick="showSection('portfolio')">View Portfolio</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio">
+        <div class="container">
+            <h2>Portfolio & Projects</h2>
+            <div class="portfolio-grid">
+                <div class="portfolio-card">
+                    <h3>📊 Stock Analysis Framework</h3>
+                    <p>Built comprehensive models for analyzing stock price movements and market trends using technical analysis and fundamental metrics.</p>
+                    <small>Skills: Data Analysis, Finance</small>
+                </div>
+                <div class="portfolio-card">
+                    <h3>🔄 M&A Valuation Model</h3>
+                    <p>Developed acquisition valuation tools analyzing company mergers and synergies, predicting stock price impacts from consolidation.</p>
+                    <small>Skills: Financial Modeling, Python</small>
+                </div>
+                <div class="portfolio-card">
+                    <h3>📈 Market Analysis Dashboard</h3>
+                    <p>Interactive dashboard showcasing real-time market data visualization and predictive analysis for multiple securities.</p>
+                    <small>Skills: Visualization, Web Dev</small>
+                </div>
+                <div class="portfolio-card">
+                    <h3>💼 Portfolio Optimization</h3>
+                    <p>Advanced portfolio construction using modern portfolio theory and risk optimization techniques for balanced returns.</p>
+                    <small>Skills: Finance Theory, Analytics</small>
+                </div>
+                <div class="portfolio-card">
+                    <h3>🎯 Risk Assessment Tools</h3>
+                    <p>Comprehensive risk evaluation systems measuring volatility, correlation, and exposure across investment portfolios.</p>
+                    <small>Skills: Risk Analysis, Mathematics</small>
+                </div>
+                <div class="portfolio-card">
+                    <h3>🔍 Market Research Project</h3>
+                    <p>In-depth industry analysis examining competitive landscapes, growth opportunities, and market disruption patterns.</p>
+                    <small>Skills: Research, Industry Analysis</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analysis Section -->
+    <section id="analysis">
+        <div class="container">
+            <h2>Financial Analysis Tools</h2>
+
+            <!-- Stock Price Merger Impact Calculator -->
+            <div class="analysis-tool">
+                <h3>📊 Merger Impact on Stock Price Calculator</h3>
+                <p>Estimate the potential stock price impact when two companies merge, considering synergies and dilution effects.</p>
+                
+                <div class="form-group">
+                    <label>Company A Stock Price ($)</label>
+                    <input type="number" id="priceA" placeholder="Enter Company A stock price" value="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>Company A Shares Outstanding (millions)</label>
+                    <input type="number" id="sharesA" placeholder="Enter shares outstanding" value="50">
+                </div>
+
+                <div class="form-group">
+                    <label>Company B Stock Price ($)</label>
+                    <input type="number" id="priceB" placeholder="Enter Company B stock price" value="50">
+                </div>
+
+                <div class="form-group">
+                    <label>Company B Shares Outstanding (millions)</label>
+                    <input type="number" id="sharesB" placeholder="Enter shares outstanding" value="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Expected Synergies ($M)</label>
+                    <input type="number" id="synergies" placeholder="Cost savings and revenue synergies" value="500">
+                </div>
+
+                <div class="form-group">
+                    <label>Integration Costs ($M)</label>
+                    <input type="number" id="costs" placeholder="One-time integration costs" value="200">
+                </div>
+
+                <button onclick="calculateMergerImpact()">Calculate Impact</button>
+                <div id="mergerResult"></div>
+            </div>
+
+            <!-- Stock Valuation Tool -->
+            <div class="analysis-tool">
+                <h3>💰 Stock Valuation (P/E & Dividend Analysis)</h3>
+                <p>Quick valuation metrics to assess if a stock is overvalued or undervalued.</p>
+
+                <div class="form-group">
+                    <label>Annual EPS (Earnings Per Share)</label>
+                    <input type="number" id="eps" placeholder="Annual earnings per share" value="5">
+                </div>
+
+                <div class="form-group">
+                    <label>Current Stock Price ($)</label>
+                    <input type="number" id="stockPrice" placeholder="Current market price" value="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Dividend Per Share ($)</label>
+                    <input type="number" id="dividendPs" placeholder="Annual dividend per share" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label>Expected Growth Rate (%)</label>
+                    <input type="number" id="growthRate" placeholder="Annual growth percentage" value="7">
+                </div>
+
+                <button onclick="calculateValuation()">Analyze Stock</button>
+                <div id="valuationResult"></div>
+            </div>
+
+            <!-- Portfolio Return Calculator -->
+            <div class="analysis-tool">
+                <h3>📈 Portfolio Return Projector</h3>
+                <p>Project your portfolio returns based on allocation and expected annual growth.</p>
+
+                <div class="form-group">
+                    <label>Initial Investment ($)</label>
+                    <input type="number" id="initialInv" placeholder="Starting capital" value="10000">
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Return Rate (%)</label>
+                    <input type="number" id="returnRate" placeholder="Expected annual return" value="8">
+                </div>
+
+                <div class="form-group">
+                    <label>Investment Period (Years)</label>
+                    <input type="number" id="investmentYears" placeholder="Number of years" value="10">
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Contribution ($)</label>
+                    <input type="number" id="annualContribution" placeholder="Additional yearly investment" value="1000">
+                </div>
+
+                <button onclick="calculatePortfolioReturn()">Project Returns</button>
+                <div id="portfolioResult"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games">
+        <div class="container">
+            <h2>Interactive Games</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Take a break and play some games!</p>
+
+            <!-- Game Selector -->
+            <div style="text-align: center;">
+                <div class="game-grid">
+                    <div class="game-card" onclick="startTicTacToe()">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem;">🎮</div>
+                            <div>Tic Tac Toe</div>
+                        </div>
+                    </div>
+                    <div class="game-card" onclick="startSnake()">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem;">🐍</div>
+                            <div>Snake Game</div>
+                        </div>
+                    </div>
+                    <div class="game-card" onclick="startNumberGuess()">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem;">🎯</div>
+                            <div>Number Guess</div>
+                        </div>
+                    </div>
+                    <div class="game-card" onclick="startMemoryGame()">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem;">🧠</div>
+                            <div>Memory Game</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tic Tac Toe -->
+            <div id="tictacGame" style="display: none;">
+                <div class="game-container">
+                    <h3>Tic Tac Toe</h3>
+                    <p id="tictacStatus">Your turn (X)</p>
+                    <div class="tictac-grid" id="tictacBoard"></div>
+                    <button onclick="resetTicTacToe()">New Game</button>
+                    <button onclick="showSection('games')" style="margin-left: 1rem;">Back</button>
+                </div>
+            </div>
+
+            <!-- Snake Game -->
+            <div id="snakeGame" style="display: none;">
+                <div class="game-container">
+                    <h3>Snake Game</h3>
+                    <p id="snakeScore">Score: 0</p>
+                    <canvas id="snakeCanvas" width="400" height="400" class="snake-canvas"></canvas>
+                    <div style="margin-top: 1rem;">
+                        <button onclick="resetSnakeGame()">New Game</button>
+                        <button onclick="showSection('games')" style="margin-left: 1rem;">Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Number Guessing Game -->
+            <div id="numberGuessGame" style="display: none;">
+                <div class="game-container">
+                    <h3>Guess the Number</h3>
+                    <p>I'm thinking of a number between 1 and 100. Can you guess it?</p>
+                    <div class="form-group" style="max-width: 300px; margin: 1rem auto;">
+                        <input type="number" id="guessInput" placeholder="Enter your guess" min="1" max="100">
+                    </div>
+                    <button onclick="submitGuess()">Submit Guess</button>
+                    <p id="guessMessage"></p>
+                    <p id="guessAttempts"></p>
+                    <button onclick="resetNumberGuess()">New Game</button>
+                    <button onclick="showSection('games')" style="margin-left: 1rem;">Back</button>
+                </div>
+            </div>
+
+            <!-- Memory Game -->
+            <div id="memoryGame" style="display: none;">
+                <div class="game-container">
+                    <h3>Memory Game</h3>
+                    <p id="memoryScore">Matches: 0</p>
+                    <div class="game-grid" id="memoryBoard" style="max-width: 400px; margin: 1rem auto;"></div>
+                    <button onclick="resetMemoryGame()">New Game</button>
+                    <button onclick="showSection('games')" style="margin-left: 1rem;">Back</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section id="content">
+        <div class="container">
+            <h2>Financial Insights & Analysis</h2>
+
+            <div class="blog-post">
+                <h3>Understanding Stock Market Mergers & Acquisitions</h3>
+                <div class="blog-meta">Published: Feb 2025 | 5 min read</div>
+                <p>When two companies merge, the combined entity's stock price doesn't simply average the two pre-merger prices. Instead, investors evaluate the strategic synergies, integration challenges, and combined earnings potential. A successful merger can create shareholder value through cost synergies, revenue cross-selling, and operational efficiencies. However, failed integrations often destroy value. Key metrics include the premium paid, expected synergies, and the combined debt/equity ratio post-merger.</p>
+            </div>
+
+            <div class="blog-post">
+                <h3>Technical vs Fundamental Analysis: Which Works Better?</h3>
+                <div class="blog-meta">Published: Jan 2025 | 7 min read</div>
+                <p>Fundamental analysis focuses on a company's intrinsic value through financial statements, management quality, and competitive advantages. Technical analysis examines historical price and volume patterns to predict future movements. Most professional investors use a blend of both approaches. Fundamental analysis answers "what should the stock be worth?" while technical analysis helps answer "when should I buy or sell?" The most effective investors combine both perspectives with proper risk management.</p>
+            </div>
+
+            <div class="blog-post">
+                <h3>Portfolio Diversification Strategies for Risk Management</h3>
+                <div class="blog-meta">Published: Dec 2024 | 6 min read</div>
+                <p>Modern Portfolio Theory teaches us that proper diversification reduces unsystematic risk without sacrificing expected returns. The key is to hold assets with low correlation to each other. A well-diversified portfolio might include US equities, international stocks, bonds, real estate, and commodities. The optimal allocation depends on your time horizon, risk tolerance, and investment goals. Regularly rebalancing ensures your portfolio stays aligned with your target allocation as different assets appreciate at different rates.</p>
+            </div>
+
+            <div class="blog-post">
+                <h3>The Impact of Interest Rates on Stock Valuations</h3>
+                <div class="blog-meta">Published: Nov 2024 | 4 min read</div>
+                <p>Interest rates are fundamental to stock valuation models. Higher interest rates increase the discount rate used to value future cash flows, leading to lower stock valuations, particularly for growth stocks. Conversely, lower rates increase valuations. This relationship explains why stock markets often rally when central banks signal lower future rates. Growth companies, which derive most value from distant future earnings, are more sensitive to rate changes than mature companies with current earnings. Understanding rate dynamics is crucial for any investor.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section id="analytics">
+        <div class="container">
+            <h2>Site Analytics & Performance</h2>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="stat-label">Total Visitors</div>
+                    <div class="stat-number" id="totalVisitors">1,247</div>
+                    <small style="color: var(--text-secondary);">↑ 12% this month</small>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="stat-label">Portfolio Views</div>
+                    <div class="stat-number" id="portfolioViews">342</div>
+                    <small style="color: var(--text-secondary);">Most popular section</small>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="stat-label">Analysis Tools Used</div>
+                    <div class="stat-number" id="toolsUsed">589</div>
+                    <small style="color: var(--text-secondary);">Merger calculator #1</small>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="stat-label">Games Played</div>
+                    <div class="stat-number" id="gamesPlayed">432</div>
+                    <small style="color: var(--text-secondary);">Snake is most popular</small>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="stat-label">Content Reads</div>
+                    <div class="stat-number" id="contentReads">215</div>
+                    <small style="color: var(--text-secondary);">M&A insights leading</small>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="stat-label">Avg Session Time</div>
+                    <div class="stat-number">4m 32s</div>
+                    <small style="color: var(--text-secondary);">High engagement</small>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>Traffic Overview</h3>
+                <div class="chart-placeholder">📊 Chart: Monthly Traffic Trends (Interactive dashboard coming soon)</div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>Top Content</h3>
+                <div class="chart-placeholder">📈 Top Pages: Portfolio (27%), Analysis Tools (24%), Content (22%)</div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>Device Breakdown</h3>
+                <div class="chart-placeholder">📱 Desktop: 58% | Mobile: 35% | Tablet: 7%</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 Paawan | Financial Analysis & Investment Insights</p>
+        <p>Built with 💙 | Completely Free | No Ads | Open Source</p>
+    </footer>
+
+    <script>
+        // Section Navigation
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // ============ ANALYSIS TOOLS ============
+
+        // Merger Impact Calculator
+        function calculateMergerImpact() {
+            const priceA = parseFloat(document.getElementById('priceA').value);
+            const sharesA = parseFloat(document.getElementById('sharesA').value);
+            const priceB = parseFloat(document.getElementById('priceB').value);
+            const sharesB = parseFloat(document.getElementById('sharesB').value);
+            const synergies = parseFloat(document.getElementById('synergies').value);
+            const costs = parseFloat(document.getElementById('costs').value);
+
+            const marketCapA = priceA * sharesA;
+            const marketCapB = priceB * sharesB;
+            const combinedMarketCap = marketCapA + marketCapB;
+            const totalShares = sharesA + sharesB;
+            const proFormaPrice = combinedMarketCap / totalShares;
+
+            const netSynergies = synergies - costs;
+            const synergiesPer100M = (netSynergies / totalShares) * 100;
+            const projectedPrice = proFormaPrice + (netSynergies / totalShares);
+
+            const priceGain = ((projectedPrice - priceA) / priceA) * 100;
+
+            document.getElementById('mergerResult').innerHTML = `
+                <div class="result-box">
+                    <h4>✓ Merger Analysis Results</h4>
+                    <p><strong>Company A Current Price:</strong> $${priceA.toFixed(2)}</p>
+                    <p><strong>Pro-Forma Price (No Synergies):</strong> $${proFormaPrice.toFixed(2)}</p>
+                    <p><strong>Net Synergies:</strong> $${netSynergies.toFixed(0)}M</p>
+                    <p><strong>Synergy Value Per Share:</strong> $${(netSynergies / totalShares).toFixed(2)}</p>
+                    <p><strong>Projected Price Post-Merger:</strong> <span style="color: var(--secondary-color); font-size: 1.2rem;">$${projectedPrice.toFixed(2)}</span></p>
+                    <p><strong>Expected Return for Company A Shareholders:</strong> <span style="color: ${priceGain >= 0 ? 'var(--secondary-color)' : 'var(--danger-color)'}; font-weight: bold;">${priceGain.toFixed(2)}%</span></p>
+                </div>
+            `;
+        }
+
+        // Stock Valuation
+        function calculateValuation() {
+            const eps = parseFloat(document.getElementById('eps').value);
+            const stockPrice = parseFloat(document.getElementById('stockPrice').value);
+            const dividendPs = parseFloat(document.getElementById('dividendPs').value);
+            const growthRate = parseFloat(document.getElementById('growthRate').value) / 100;
+
+            const pe = stockPrice / eps;
+            const industryPE = 20; // Average industry P/E
+            const divYield = (dividendPs / stockPrice) * 100;
+            const peg = pe / (growthRate * 100);
+            const fairValue = eps * industryPE;
+            const margin = ((stockPrice - fairValue) / fairValue) * 100;
+
+            let valuation = 'FAIRLY VALUED';
+            let color = 'var(--secondary-color)';
+            if (margin > 20) {
+                valuation = 'OVERVALUED';
+                color = 'var(--danger-color)';
+            } else if (margin < -20) {
+                valuation = 'UNDERVALUED';
+                color = 'var(--secondary-color)';
+            }
+
+            document.getElementById('valuationResult').innerHTML = `
+                <div class="result-box">
+                    <h4>✓ Valuation Metrics</h4>
+                    <p><strong>P/E Ratio:</strong> ${pe.toFixed(2)}x (Industry Avg: ${industryPE}x)</p>
+                    <p><strong>Dividend Yield:</strong> ${divYield.toFixed(2)}%</p>
+                    <p><strong>PEG Ratio:</strong> ${peg.toFixed(2)} (Lower is better for growth stocks)</p>
+                    <p><strong>Fair Value (Based on Earnings):</strong> $${fairValue.toFixed(2)}</p>
+                    <p><strong>Current Price vs Fair Value:</strong> <span style="color: ${color}; font-weight: bold;">${margin.toFixed(2)}% ${margin > 0 ? 'OVERVALUED' : 'UNDERVALUED'}</span></p>
+                    <p><strong>Rating:</strong> <span style="color: ${color}; font-weight: bold; font-size: 1.1rem;">${valuation}</span></p>
+                </div>
+            `;
+        }
+
+        // Portfolio Return Calculator
+        function calculatePortfolioReturn() {
+            const initial = parseFloat(document.getElementById('initialInv').value);
+            const rate = parseFloat(document.getElementById('returnRate').value) / 100;
+            const years = parseFloat(document.getElementById('investmentYears').value);
+            const contribution = parseFloat(document.getElementById('annualContribution').value);
+
+            let balance = initial;
+            let totalContributed = initial;
+            const yearlyBreakdown = [];
+
+            for (let i = 1; i <= years; i++) {
+                balance = balance * (1 + rate) + contribution;
+                totalContributed += contribution;
+                yearlyBreakdown.push({year: i, balance: balance});
+            }
+
+            const gain = balance - totalContributed;
+            const roi = (gain / totalContributed) * 100;
+
+            document.getElementById('portfolioResult').innerHTML = `
+                <div class="result-box">
+                    <h4>✓ 10-Year Projection</h4>
+                    <p><strong>Starting Investment:</strong> $${initial.toFixed(2)}</p>
+                    <p><strong>Total Contributions:</strong> $${totalContributed.toFixed(2)}</p>
+                    <p><strong>Annual Return Rate:</strong> ${(rate * 100).toFixed(2)}%</p>
+                    <p><strong>Final Portfolio Value:</strong> <span style="color: var(--secondary-color); font-size: 1.2rem;">$${balance.toFixed(2)}</span></p>
+                    <p><strong>Total Investment Gain:</strong> <span style="color: var(--secondary-color); font-weight: bold;">$${gain.toFixed(2)}</span></p>
+                    <p><strong>ROI:</strong> <span style="color: var(--secondary-color); font-weight: bold;">${roi.toFixed(2)}%</span></p>
+                    <small>Assumes consistent ${(rate*100).toFixed(2)}% annual returns and $${contribution.toFixed(0)} yearly contributions</small>
+                </div>
+            `;
+        }
+
+        // ============ GAMES ============
+
+        // Tic Tac Toe
+        let tictacBoard = ['', '', '', '', '', '', '', '', ''];
+        let tictacGameActive = true;
+        let tictacCurrentPlayer = 'X';
+
+        function startTicTacToe() {
+            document.getElementById('tictacGame').style.display = 'block';
+            resetTicTacToe();
+        }
+
+        function resetTicTacToe() {
+            tictacBoard = ['', '', '', '', '', '', '', '', ''];
+            tictacGameActive = true;
+            tictacCurrentPlayer = 'X';
+            renderTictacBoard();
+            document.getElementById('tictacStatus').textContent = "Your turn (X)";
+        }
+
+        function renderTictacBoard() {
+            const boardDiv = document.getElementById('tictacBoard');
+            boardDiv.innerHTML = '';
+            tictacBoard.forEach((cell, index) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'tictac-cell';
+                cellDiv.textContent = cell;
+                cellDiv.onclick = () => tictacMove(index);
+                boardDiv.appendChild(cellDiv);
+            });
+        }
+
+        function tictacMove(index) {
+            if (tictacBoard[index] !== '' || !tictacGameActive) return;
+            tictacBoard[index] = tictacCurrentPlayer;
+            
+            if (checkTictacWin()) {
+                document.getElementById('tictacStatus').textContent = `${tictacCurrentPlayer} Wins! 🎉`;
+                tictacGameActive = false;
+            } else if (tictacBoard.every(cell => cell !== '')) {
+                document.getElementById('tictacStatus').textContent = "It's a Draw!";
+                tictacGameActive = false;
+            } else {
+                tictacCurrentPlayer = tictacCurrentPlayer === 'X' ? 'O' : 'X';
+                document.getElementById('tictacStatus').textContent = `${tictacCurrentPlayer}'s turn`;
+            }
+            renderTictacBoard();
+        }
+
+        function checkTictacWin() {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            return winConditions.some(condition => 
+                tictacBoard[condition[0]] === tictacCurrentPlayer &&
+                tictacBoard[condition[1]] === tictacCurrentPlayer &&
+                tictacBoard[condition[2]] === tictacCurrentPlayer
+            );
+        }
+
+        // Snake Game
+        let snakeGame = {
+            canvas: null,
+            ctx: null,
+            snake: [{x: 100, y: 100}],
+            food: {x: 200, y: 200},
+            direction: {x: 10, y: 0},
+            score: 0,
+            active: false
+        };
+
+        function startSnake() {
+            document.getElementById('snakeGame').style.display = 'block';
+            resetSnakeGame();
+        }
+
+        function resetSnakeGame() {
+            snakeGame.canvas = document.getElementById('snakeCanvas');
+            snakeGame.ctx = snakeGame.canvas.getContext('2d');
+            snakeGame.snake = [{x: 100, y: 100}];
+            snakeGame.food = {x: Math.random() * 400, y: Math.random() * 400};
+            snakeGame.direction = {x: 10, y: 0};
+            snakeGame.score = 0;
+            snakeGame.active = true;
+            document.getElementById('snakeScore').textContent = 'Score: 0';
+            
+            document.addEventListener('keydown', handleSnakeKeyPress);
+            playSnakeGame();
+        }
+
+        function handleSnakeKeyPress(e) {
+            if (e.key === 'ArrowUp') snakeGame.direction = {x: 0, y: -10};
+            if (e.key === 'ArrowDown') snakeGame.direction = {x: 0, y: 10};
+            if (e.key === 'ArrowLeft') snakeGame.direction = {x: -10, y: 0};
+            if (e.key === 'ArrowRight') snakeGame.direction = {x: 10, y: 0};
+        }
+
+        function playSnakeGame() {
+            if (!snakeGame.active) return;
+
+            const head = {x: snakeGame.snake[0].x + snakeGame.direction.x, y: snakeGame.snake[0].y + snakeGame.direction.y};
+            
+            if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400 || 
+                snakeGame.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                snakeGame.active = false;
+                document.getElementById('snakeScore').textContent = `Game Over! Final Score: ${snakeGame.score}`;
+                return;
+            }
+
+            snakeGame.snake.unshift(head);
+
+            if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+                snakeGame.score += 10;
+                document.getElementById('snakeScore').textContent = `Score: ${snakeGame.score}`;
+                snakeGame.food = {x: Math.floor(Math.random() * 40) * 10, y: Math.floor(Math.random() * 40) * 10};
+            } else {
+                snakeGame.snake.pop();
+            }
+
+            snakeGame.ctx.fillStyle = '#0f1419';
+            snakeGame.ctx.fillRect(0, 0, 400, 400);
+
+            snakeGame.ctx.fillStyle = '#34a853';
+            snakeGame.snake.forEach(segment => {
+                snakeGame.ctx.fillRect(segment.x, segment.y, 10, 10);
+            });
+
+            snakeGame.ctx.fillStyle = '#ea4335';
+            snakeGame.ctx.fillRect(snakeGame.food.x, snakeGame.food.y, 10, 10);
+
+            setTimeout(playSnakeGame, 100);
+        }
+
+        // Number Guessing Game
+        let numberGuessData = {
+            target: 0,
+            attempts: 0
+        };
+
+        function startNumberGuess() {
+            document.getElementById('numberGuessGame').style.display = 'block';
+            resetNumberGuess();
+        }
+
+        function resetNumberGuess() {
+            numberGuessData.target = Math.floor(Math.random() * 100) + 1;
+            numberGuessData.attempts = 0;
+            document.getElementById('guessMessage').textContent = '';
+            document.getElementById('guessAttempts').textContent = '';
+            document.getElementById('guessInput').value = '';
+        }
+
+        function submitGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            numberGuessData.attempts++;
+
+            if (guess === numberGuessData.target) {
+                document.getElementById('guessMessage').innerHTML = `<span style="color: var(--secondary-color); font-weight: bold;">🎉 Correct! You guessed it in ${numberGuessData.attempts} attempts!</span>`;
+            } else if (guess < numberGuessData.target) {
+                document.getElementById('guessMessage').innerHTML = `<span style="color: var(--primary-color);">↑ Too low! Try higher.</span>`;
+            } else {
+                document.getElementById('guessMessage').innerHTML = `<span style="color: var(--danger-color);">↓ Too high! Try lower.</span>`;
+            }
+            document.getElementById('guessAttempts').textContent = `Attempts: ${numberGuessData.attempts}`;
+        }
+
+        // Memory Game
+        let memoryGameData = {
+            cards: [],
+            flipped: [],
+            matched: 0,
+            firstCard: null
+        };
+
+        function startMemoryGame() {
+            document.getElementById('memoryGame').style.display = 'block';
+            resetMemoryGame();
+        }
+
+        function resetMemoryGame() {
+            const symbols = ['🎯', '🎯', '💰', '💰', '📈', '📈', '🔔', '🔔', '⭐', '⭐', '💎', '💎', '🚀', '🚀', '🎁', '🎁'];
+            memoryGameData.cards = symbols.sort(() => Math.random() - 0.5);
+            memoryGameData.flipped = new Array(16).fill(false);
+            memoryGameData.matched = 0;
+            memoryGameData.firstCard = null;
+            renderMemoryBoard();
+        }
+
+        function renderMemoryBoard() {
+            const board = document.getElementById('memoryBoard');
+            board.innerHTML = '';
+            memoryGameData.cards.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'game-card';
+                cardDiv.innerHTML = memoryGameData.flipped[index] ? card : '?';
+                cardDiv.onclick = () => flipMemoryCard(index);
+                cardDiv.style.opacity = memoryGameData.flipped[index] ? '1' : '0.6';
+                board.appendChild(cardDiv);
+            });
+            document.getElementById('memoryScore').textContent = `Matches: ${memoryGameData.matched}`;
+        }
+
+        function flipMemoryCard(index) {
+            if (memoryGameData.flipped[index] || memoryGameData.firstCard !== null) return;
+            memoryGameData.flipped[index] = true;
+            
+            if (memoryGameData.firstCard === null) {
+                memoryGameData.firstCard = index;
+            } else {
+                if (memoryGameData.cards[index] === memoryGameData.cards[memoryGameData.firstCard]) {
+                    memoryGameData.matched++;
+                } else {
+                    setTimeout(() => {
+                        memoryGameData.flipped[index] = false;
+                        memoryGameData.flipped[memoryGameData.firstCard] = false;
+                        renderMemoryBoard();
+                    }, 500);
+                }
+                memoryGameData.firstCard = null;
+            }
+            renderMemoryBoard();
+        }
+
+        // Track analytics (simulated)
+        function trackAction(action) {
+            // In a real app, this would send data to a server
+            console.log('Action tracked:', action);
+        }
+
+        // Initialize analytics on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate analytics updates
+            setInterval(() => {
+                document.getElementById('totalVisitors').textContent = (1247 + Math.floor(Math.random() * 50)).toLocaleString();
+                document.getElementById('portfolioViews').textContent = (342 + Math.floor(Math.random() * 20)).toLocaleString();
+                document.getElementById('toolsUsed').textContent = (589 + Math.floor(Math.random() * 30)).toLocaleString();
+                document.getElementById('gamesPlayed').textContent = (432 + Math.floor(Math.random() * 25)).toLocaleString();
+                document.getElementById('contentReads').textContent = (215 + Math.floor(Math.random() * 15)).toLocaleString();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
