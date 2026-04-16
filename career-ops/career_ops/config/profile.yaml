@@ -10,10 +10,8 @@ github: "https://github.com/paawan99"
 # Based in Vancouver (UCW), open to anywhere in Canada.
 location: "Canada"
 
-# IMPORTANT: update this to the actual path of your Word resume on your
-# Windows machine. Use forward slashes inside the quotes.
-# Example: "C:/Users/Paawan/Documents/Paawan_Shah_Resume.docx"
-resume_docx: "C:/Users/Paawan/Documents/Paawan_Shah_Resume.docx"
+# Source resume -- real path on Paawan's PC.
+resume_docx: "C:/Users/Paawan/OneDrive/Desktop/01_Career/Resumes_CoverLetters/Paawan.Shah.Resume.docx"
 
 # ----------------------------------------------------------------------
 # Target roles -- reflect your MBA (Finance) + CSC + IFC + retail banking
