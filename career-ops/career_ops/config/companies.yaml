@@ -1,37 +1,100 @@
-# Companies to scan. `board` is one of: greenhouse, ashby, lever.
-# `slug` is the company's board handle.
+# Canadian banks, credit unions, and fintechs.
 #
-# How to find the slug:
-#   Greenhouse: job URL looks like https://boards.greenhouse.io/<slug>/jobs/...
-#   Ashby:      https://jobs.ashbyhq.com/<slug>
-#   Lever:      https://jobs.lever.co/<slug>
+# Most Canadian banks/CUs use Workday. Workday entries need:
+#   tenant: short tenant slug (lowercase)
+#   host:   the full myworkdayjobs.com host
+#   site:   the external careers site name (case-sensitive!)
+#   country: optional locale facet, e.g. "Canada"
+#   fetch_descriptions: true  -> pulls full JD for the top N (slower but
+#                                 needed for keyword matching to work well)
 #
-# Curated seed list — add/remove to match your targets.
+# How to find tenant/host/site for any Workday careers page:
+#   1. Open the company's careers page in a browser.
+#   2. Open DevTools -> Network tab, filter for "jobs".
+#   3. Look for a POST to /wday/cxs/<TENANT>/<SITE>/jobs and copy
+#      the host (e.g. td.wd3.myworkdayjobs.com), tenant, and site.
+#
+# I've filled in best-known values below. VERIFY each one against the
+# company's live careers page -- Workday tenants occasionally change
+# region (wd1/wd3/wd5) or rename their site.
 
 companies:
-  # --- Greenhouse ---
-  - { name: Anthropic,        board: greenhouse, slug: anthropic }
-  - { name: Stripe,            board: greenhouse, slug: stripe }
-  - { name: Airbnb,            board: greenhouse, slug: airbnb }
-  - { name: Robinhood,         board: greenhouse, slug: robinhood }
-  - { name: Coinbase,          board: greenhouse, slug: coinbase }
-  - { name: Databricks,        board: greenhouse, slug: databricks }
-  - { name: DoorDash,          board: greenhouse, slug: doordash }
-  - { name: Instacart,         board: greenhouse, slug: instacart }
-  - { name: "Two Sigma",       board: greenhouse, slug: twosigma }
-  - { name: "Jane Street",     board: greenhouse, slug: janestreet }
-  - { name: "Point72",         board: greenhouse, slug: point72 }
+  # ===================================================================
+  # Big Six Canadian banks (all on Workday)
+  # ===================================================================
+  - { name: "RBC",                board: workday, tenant: rbc,
+      host: rbc.wd3.myworkdayjobs.com, site: RBC_Careers,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
 
-  # --- Ashby ---
-  - { name: OpenAI,            board: ashby,      slug: openai }
-  - { name: Ramp,              board: ashby,      slug: ramp }
-  - { name: Linear,            board: ashby,      slug: linear }
-  - { name: Vanta,             board: ashby,      slug: vanta }
-  - { name: Notion,            board: ashby,      slug: notion }
-  - { name: Posthog,           board: ashby,      slug: posthog }
+  - { name: "TD Bank",            board: workday, tenant: td,
+      host: td.wd3.myworkdayjobs.com, site: TD_External_Career_Site,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
 
-  # --- Lever ---
-  - { name: Netflix,           board: lever,      slug: netflix }
-  - { name: Palantir,          board: lever,      slug: palantir }
-  - { name: Shopify,           board: lever,      slug: shopify }
-  - { name: Figma,             board: lever,      slug: figma }
+  - { name: "Scotiabank",         board: workday, tenant: scotiabank,
+      host: scotiabank.wd3.myworkdayjobs.com, site: Scotiabank_Careers,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+
+  - { name: "BMO",                board: workday, tenant: bmo,
+      host: bmo.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+
+  - { name: "CIBC",               board: workday, tenant: cibc,
+      host: cibc.wd3.myworkdayjobs.com, site: search,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+
+  - { name: "National Bank",      board: workday, tenant: nbc,
+      host: nbc.wd3.myworkdayjobs.com, site: nbc_External_Career_site,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+
+  # ===================================================================
+  # Other Canadian banks
+  # ===================================================================
+  - { name: "HSBC Canada",        board: workday, tenant: hsbc,
+      host: hsbc.wd3.myworkdayjobs.com, site: HSBC,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Laurentian Bank",    board: workday, tenant: lbcfg,
+      host: lbcfg.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Equitable Bank",     board: workday, tenant: eqbank,
+      host: eqbank.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  # ===================================================================
+  # Canadian credit unions
+  # ===================================================================
+  - { name: "Vancity",            board: workday, tenant: vancity,
+      host: vancity.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Coast Capital",      board: workday, tenant: coastcapitalsavings,
+      host: coastcapitalsavings.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Servus Credit Union", board: workday, tenant: servus,
+      host: servus.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Meridian CU",        board: workday, tenant: meridiancu,
+      host: meridiancu.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "First West CU",      board: workday, tenant: firstwestcu,
+      host: firstwestcu.wd3.myworkdayjobs.com, site: External,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+
+  - { name: "Desjardins",         board: workday, tenant: desjardins,
+      host: desjardins.wd3.myworkdayjobs.com, site: Desjardins_Career_Site,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+
+  # ===================================================================
+  # Canadian fintechs (Greenhouse / Lever — usually full JD inline)
+  # ===================================================================
+  - { name: "Wealthsimple",       board: greenhouse, slug: wealthsimple }
+  - { name: "Neo Financial",      board: lever,      slug: neofinancial }
+  - { name: "Koho",               board: greenhouse, slug: koho }
+  - { name: "Float",              board: greenhouse, slug: float }
+  - { name: "Nuvei",              board: workday,    tenant: nuvei,
+      host: nuvei.wd3.myworkdayjobs.com, site: nuvei,
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
