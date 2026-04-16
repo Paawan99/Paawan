@@ -9,19 +9,20 @@ phone: "+1 (xxx) xxx-xxxx"
 github: "https://github.com/paawan99"
 linkedin: "https://linkedin.com/in/paawan"
 
-# Your home base. Used in the rendered CV header and (informally) in matching.
-location: "Toronto, ON, Canada"
+# Your home base. Shown in the rendered CV header. The matcher doesn't
+# filter by this -- open to any Canadian city, everywhere in Canada.
+location: "Canada"
 
-# Absolute path to your source Word resume — the tailor reads this and
-# writes a per-job copy under output/resumes/.
-resume_docx: "/Users/paawan/Documents/resume.docx"
+# Absolute path to your source Word resume -- the tailor reads this and
+# writes a per-job copy under output/resumes/. On Windows use forward
+# slashes inside the quotes to avoid escape headaches.
+resume_docx: "C:/Users/Paawan/Documents/resume.docx"
 
 # ----------------------------------------------------------------------
 # What you're looking for
 # ----------------------------------------------------------------------
 # Substrings (case-insensitive) checked against job titles. A job title
-# containing any of these gets a small score boost via the matcher's
-# title-token bonus.
+# containing any of these gets a small score boost.
 target_titles:
   - "Business Analyst"
   - "Data Analyst"
@@ -32,15 +33,14 @@ target_titles:
   - "Compliance Analyst"
   - "Software Developer"
   - "Banking Advisor"
+  - "Personal Banker"
 
-# Cities/regions you'd accept. Used for CV header context only — the
-# Workday scraper already filters by country=Canada in companies.yaml.
+# Locations you'd accept. Open to anywhere in Canada, including remote.
+# This is used informally for the rendered CV; the Workday scraper
+# already filters by country=Canada in companies.yaml, so every scanned
+# job is already Canada-based regardless of city.
 target_locations:
-  - "Toronto"
-  - "Mississauga"
-  - "Vancouver"
-  - "Montreal"
-  - "Calgary"
+  - "Anywhere in Canada"
   - "Remote (Canada)"
 
 # Job titles to drop entirely. Match is substring, case-insensitive.
@@ -54,7 +54,7 @@ exclude_titles:
   - "Head of"
 
 # ----------------------------------------------------------------------
-# Skills — the ONLY keywords the tailor will inject into your resume.
+# Skills -- the ONLY keywords the tailor will inject into your resume.
 # We never invent skills. Edit each bucket to reflect what YOU actually
 # have. The matcher weights: must_have x3, strong x2, familiar x1.
 # ----------------------------------------------------------------------
@@ -101,17 +101,17 @@ skills:
 # only ever use the `tailor` command on an existing .docx.
 # ----------------------------------------------------------------------
 summary: >
-  Detail-oriented analyst with a background in financial services and
-  customer-facing banking operations. Comfortable with data analysis in
-  Excel/SQL, AML/KYC compliance workflows, and translating regulatory
-  requirements into clear processes. Looking to grow within a Canadian
-  bank or credit union.
+  Detail-oriented analyst open to opportunities anywhere in Canada, with
+  a background in financial services and customer-facing banking
+  operations. Comfortable with data analysis in Excel/SQL, AML/KYC
+  compliance workflows, and translating regulatory requirements into
+  clear processes. Looking to grow within a Canadian bank or credit union.
 
 experience:
   - company: "Example Bank or Credit Union"
     title: "Customer Service Representative / Personal Banker"
-    dates: "20XX — Present"
-    location: "Toronto, ON"
+    dates: "20XX -- Present"
+    location: "Canada"
     bullets:
       - "Opened and serviced personal/business accounts; completed KYC + AML reviews."
       - "Reconciled daily cash positions and resolved transaction discrepancies."
@@ -120,12 +120,12 @@ experience:
 education:
   - school: "Your University / College"
     degree: "Diploma / Bachelor's in Finance, Commerce, or related"
-    dates: "20XX — 20XX"
+    dates: "20XX -- 20XX"
     location: "Canada"
 
 certifications:
-  # Common Canadian banking certs — keep only the ones you actually have.
-  - "Canadian Securities Course (CSC) — in progress"
+  # Common Canadian banking certs -- keep only the ones you actually have.
+  - "Canadian Securities Course (CSC) -- in progress"
   # - "Investment Funds in Canada (IFC)"
   # - "Personal Financial Planner (PFP)"
   # - "Certified Anti-Money Laundering Specialist (CAMS)"
