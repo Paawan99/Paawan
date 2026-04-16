@@ -1,22 +1,11 @@
-"""Keyword extraction and resume/JD overlap scoring.
-
-Approach:
-- Tokenize the JD, lowercase, strip HTML, drop a stopword list.
-- Score = weighted overlap between JD tokens and the candidate's profile
-  skills (which are categorized: must_have, strong, familiar).
-- Report missing keywords (in JD but not in profile) so the tailor module
-  can decide whether to surface them.
-
-This is intentionally simple — no embeddings, no ML — so the tool stays
-hackable and offline-friendly. Upgrade path: swap `_score` for a sentence
-embedding cosine if you want.
-"""
+"""Keyword extraction, resume/JD overlap scoring, and recency filtering."""
 
 from __future__ import annotations
 
 import html
 import re
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Iterable, List, Set
 
 from .models import Job, MatchReport
@@ -24,7 +13,6 @@ from .models import Job, MatchReport
 _TAG = re.compile(r"<[^>]+>")
 _WORD = re.compile(r"[A-Za-z][A-Za-z0-9+.#\-]{1,}")
 
-# kept tiny on purpose — lots of "skills" are actually short tokens.
 _STOPWORDS: Set[str] = {
     "a", "an", "and", "or", "but", "the", "of", "in", "on", "at", "to",
     "for", "with", "by", "from", "as", "is", "are", "was", "were", "be",
@@ -47,26 +35,16 @@ def _strip_html(s: str) -> str:
 
 
 def tokenize(text: str) -> List[str]:
-    """Lowercase tokens, stopwords removed, HTML stripped."""
     clean = _strip_html(text).lower()
     return [t for t in _WORD.findall(clean) if t not in _STOPWORDS and len(t) > 1]
 
 
 def extract_keywords(text: str, top_n: int = 40) -> List[str]:
-    """Top-N tokens by frequency. Useful for showing what a JD emphasizes."""
     counts = Counter(tokenize(text))
     return [tok for tok, _ in counts.most_common(top_n)]
 
 
 def _profile_terms(profile: dict) -> Dict[str, float]:
-    """Flatten profile.skills into {term: weight}.
-
-    Profile shape (see config/profile.yaml.example):
-        skills:
-          must_have: [python, ...]
-          strong:    [docker, ...]
-          familiar:  [rust, ...]
-    """
     weights = {"must_have": 3.0, "strong": 2.0, "familiar": 1.0}
     out: Dict[str, float] = {}
     skills = (profile or {}).get("skills", {}) or {}
@@ -74,7 +52,6 @@ def _profile_terms(profile: dict) -> Dict[str, float]:
         w = weights.get(bucket, 1.0)
         for t in terms or []:
             out[t.lower().strip()] = max(out.get(t.lower().strip(), 0), w)
-    # also fold in titles the candidate is targeting
     for t in (profile or {}).get("target_titles", []) or []:
         for tok in tokenize(t):
             out.setdefault(tok, 1.5)
@@ -82,13 +59,10 @@ def _profile_terms(profile: dict) -> Dict[str, float]:
 
 
 def _score(profile_terms: Dict[str, float], jd_tokens: List[str]) -> float:
-    """Return 0..100. Weighted profile-hits over JD-token-volume."""
     if not jd_tokens:
         return 0.0
     jd_set = set(jd_tokens)
     hit_weight = sum(w for term, w in profile_terms.items() if term in jd_set)
-    # normalize against a constant so scores are comparable across JDs
-    # (long JDs would otherwise look weaker than short ones).
     max_possible = sum(profile_terms.values()) or 1.0
     return round(min(100.0, 100.0 * hit_weight / max_possible), 1)
 
@@ -99,12 +73,8 @@ def match_job(job: Job, profile: dict) -> MatchReport:
     profile_terms = _profile_terms(profile)
 
     matched = sorted({t for t in profile_terms if t in jd_set})
-    # candidate "missing" pool = high-frequency JD tokens that aren't in profile
     counts = Counter(jd_tokens)
-    missing = [
-        tok for tok, _ in counts.most_common(50)
-        if tok not in profile_terms
-    ][:15]
+    missing = [tok for tok, _ in counts.most_common(50) if tok not in profile_terms][:15]
 
     score = _score(profile_terms, jd_tokens)
     return MatchReport(
@@ -123,7 +93,6 @@ def match_all(jobs: Iterable[Job], profile: dict, min_score: float = 0.0) -> Lis
 
 
 def filter_excluded(jobs: Iterable[Job], profile: dict) -> List[Job]:
-    """Drop jobs whose title contains any token from profile.exclude_titles."""
     excludes = [t.lower() for t in (profile or {}).get("exclude_titles", []) or []]
     if not excludes:
         return list(jobs)
@@ -133,4 +102,84 @@ def filter_excluded(jobs: Iterable[Job], profile: dict) -> List[Job]:
         if any(ex in title_lc for ex in excludes):
             continue
         out.append(j)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Recency filter (e.g. "postings in the last 7 days")
+# ---------------------------------------------------------------------------
+
+_RE_N_DAYS = re.compile(r"posted\s*(\d+)\+?\s*days?\s*ago", re.IGNORECASE)
+_RE_N_HOURS = re.compile(r"posted\s*(\d+)\+?\s*hours?\s*ago", re.IGNORECASE)
+_RE_N_WEEKS = re.compile(r"posted\s*(\d+)\+?\s*weeks?\s*ago", re.IGNORECASE)
+_RE_N_MONTHS = re.compile(r"posted\s*(\d+)\+?\s*months?\s*ago", re.IGNORECASE)
+
+
+def _parse_posted(posted_at: str) -> datetime | None:
+    """Best-effort parse of a posted_at field across boards.
+
+    Supports:
+      - ISO 8601 strings (Greenhouse, Ashby)
+      - Unix ms timestamps (Lever, as a stringified int)
+      - Workday phrases: "Today", "Yesterday", "Posted N Days Ago", etc.
+    Returns a UTC datetime, or None if unparseable.
+    """
+    if not posted_at:
+        return None
+    s = str(posted_at).strip()
+    low = s.lower()
+    now = datetime.now(timezone.utc)
+
+    if "today" in low or "just posted" in low:
+        return now
+    if "yesterday" in low:
+        return now - timedelta(days=1)
+
+    m = _RE_N_HOURS.search(low)
+    if m:
+        return now - timedelta(hours=int(m.group(1)))
+    m = _RE_N_DAYS.search(low)
+    if m:
+        return now - timedelta(days=int(m.group(1)))
+    m = _RE_N_WEEKS.search(low)
+    if m:
+        return now - timedelta(weeks=int(m.group(1)))
+    m = _RE_N_MONTHS.search(low)
+    if m:
+        return now - timedelta(days=30 * int(m.group(1)))
+
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        pass
+
+    try:
+        ts = int(s)
+        # Lever returns ms; anything > ~1e12 is clearly ms, not seconds.
+        if ts > 10_000_000_000:
+            return datetime.fromtimestamp(ts / 1000, tz=timezone.utc)
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    except (TypeError, ValueError):
+        pass
+    return None
+
+
+def filter_since_days(jobs: Iterable[Job], days: int, keep_unknown: bool = True) -> List[Job]:
+    """Drop jobs posted more than `days` ago.
+
+    If keep_unknown is True, postings whose posted_at can't be parsed are
+    kept (safer default -- banks' Workday feeds often omit exact dates).
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    out: List[Job] = []
+    for j in jobs:
+        dt = _parse_posted(j.posted_at)
+        if dt is None:
+            if keep_unknown:
+                out.append(j)
+            continue
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        if dt >= cutoff:
+            out.append(j)
     return out
