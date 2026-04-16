@@ -27,6 +27,33 @@ USER_AGENT = "career-ops/0.1 (+https://github.com/paawan99/paawan)"
 TIMEOUT = 25
 RETRY_BACKOFF = (1, 2, 4)
 
+# Common Canadian city/province tokens for client-side location filtering.
+# Workday tenants reject a "country" facet in the request body, so we fetch
+# everything and filter here.
+_CANADA_HINTS = (
+    "canada", "canadian",
+    # provinces
+    "ontario", "quebec", "british columbia", "b.c.", "bc,",
+    "alberta", "manitoba", "saskatchewan", "nova scotia", "new brunswick",
+    "newfoundland", "prince edward", "p.e.i.", "nwt", "yukon", "nunavut",
+    # major cities
+    "toronto", "mississauga", "brampton", "markham", "scarborough", "etobicoke",
+    "ottawa", "hamilton", "london", "kitchener", "waterloo", "windsor",
+    "montreal", "quebec city", "laval", "gatineau", "sherbrooke",
+    "vancouver", "burnaby", "richmond", "surrey", "victoria", "kelowna",
+    "calgary", "edmonton", "red deer", "lethbridge",
+    "winnipeg", "regina", "saskatoon", "halifax", "st. john",
+    # remote tags
+    "remote - ca", "remote canada", "remote, canada",
+)
+
+
+def _is_canadian(location_text: str) -> bool:
+    if not location_text:
+        return False
+    t = location_text.lower()
+    return any(h in t for h in _CANADA_HINTS)
+
 
 def _get(url: str) -> dict | list | None:
     for attempt, wait in enumerate(RETRY_BACKOFF, start=1):
@@ -35,10 +62,15 @@ def _get(url: str) -> dict | list | None:
             if r.status_code == 404:
                 log.warning("404 %s", url)
                 return None
+            if 400 <= r.status_code < 500:
+                # 4xx won't be fixed by retrying
+                log.warning("%s %s", r.status_code, url)
+                return None
             r.raise_for_status()
             return r.json()
         except (requests.RequestException, ValueError) as e:
-            log.warning("attempt %d/%d failed for %s: %s", attempt, len(RETRY_BACKOFF), url, e)
+            log.warning("GET attempt %d/%d failed for %s: %s",
+                        attempt, len(RETRY_BACKOFF), url, e)
             if attempt < len(RETRY_BACKOFF):
                 time.sleep(wait)
     return None
@@ -59,6 +91,11 @@ def _post_json(url: str, body: dict) -> dict | None:
             )
             if r.status_code == 404:
                 log.warning("404 %s", url)
+                return None
+            if 400 <= r.status_code < 500:
+                # 4xx: the request is wrong; retrying won't help.
+                log.warning("%s %s (body rejected) -- check tenant/host/site",
+                            r.status_code, url)
                 return None
             r.raise_for_status()
             return r.json()
@@ -136,21 +173,21 @@ def fetch_lever(slug: str) -> List[Job]:
 def fetch_workday(entry: dict) -> List[Job]:
     """Workday CXS API. Requires {tenant, host, site} in the config entry.
 
-    Examples (verify each on the company's career page first):
-      tenant: 'td'         host: 'td.wd3.myworkdayjobs.com'      site: 'TD_External_Career_Site'
-      tenant: 'rbc'        host: 'rbc.wd3.myworkdayjobs.com'     site: 'RBC_Careers'
-      tenant: 'bmo'        host: 'bmo.wd3.myworkdayjobs.com'     site: 'External'
+    We never send an "applied facet" for country -- Workday rejects the
+    request (HTTP 422) unless facets use per-tenant internal IDs. Instead,
+    we fetch everything and filter client-side via `country` / `canada_only`.
 
-    To find these for any Workday-hosted careers page:
-      1. Open the company's careers site in a browser.
-      2. Open DevTools -> Network tab, filter for "jobs".
-      3. Look for a POST to /wday/cxs/<tenant>/<site>/jobs -- copy those values.
+    To find tenant/host/site for any Workday careers page:
+      1. Open the careers site in a browser.
+      2. Open DevTools -> Network tab, filter "jobs".
+      3. Look for a POST to /wday/cxs/<tenant>/<site>/jobs -- copy those three.
     """
     tenant = entry.get("tenant")
     host = entry.get("host")
     site = entry.get("site")
     keyword = entry.get("keyword", "")
-    country = entry.get("country", "")  # optional country facet, e.g. 'Canada'
+    canada_only = bool(entry.get("country", "")) or bool(entry.get("canada_only", False))
+
     if not (tenant and host and site):
         log.warning("workday entry missing tenant/host/site: %s", entry)
         return []
@@ -163,16 +200,11 @@ def fetch_workday(entry: dict) -> List[Job]:
     page = 50
     while True:
         body: dict = {
-            "appliedFacets": {},
+            "appliedFacets": {},     # intentionally empty -- see docstring
             "limit": page,
             "offset": offset,
             "searchText": keyword,
         }
-        if country:
-            # Workday country facet IDs differ per tenant; we use the human name
-            # which works on most public sites because they index it.
-            body["appliedFacets"]["locationCountry"] = [country]
-
         data = _post_json(api, body)
         if not data:
             break
@@ -181,6 +213,9 @@ def fetch_workday(entry: dict) -> List[Job]:
             break
 
         for j in postings:
+            location_text = j.get("locationsText", "")
+            if canada_only and not _is_canadian(location_text):
+                continue
             ext_path = j.get("externalPath", "")
             url = f"https://{host}{ext_path}" if ext_path.startswith("/") else ext_path
             out.append(Job(
@@ -188,7 +223,7 @@ def fetch_workday(entry: dict) -> List[Job]:
                 company=tenant,
                 job_id=str(j.get("bulletFields", [""])[0] or ext_path.rsplit("/", 1)[-1]),
                 title=j.get("title", ""),
-                location=j.get("locationsText", ""),
+                location=location_text,
                 department=j.get("subtitles", [""])[0] if j.get("subtitles") else "",
                 url=url,
                 description_html=j.get("shortDescription", ""),
@@ -201,7 +236,7 @@ def fetch_workday(entry: dict) -> List[Job]:
             break
 
     # Workday's list endpoint omits full descriptions; pull them on demand
-    # for the top N to keep this fast. Skip if you'd rather match on title only.
+    # for the top N (needed so the matcher has real JD text to work with).
     fetch_descriptions = entry.get("fetch_descriptions", False)
     if fetch_descriptions:
         for job in out[: int(entry.get("descriptions_limit", 25))]:
@@ -222,12 +257,7 @@ _DISPATCH = {
 
 
 def scan_companies(companies: Iterable[dict]) -> List[Job]:
-    """Iterate config entries and return all jobs.
-
-    Entry shapes:
-      {board: greenhouse|ashby|lever, slug: <slug>}
-      {board: workday, tenant: <t>, host: <h>, site: <s>, country?: 'Canada'}
-    """
+    """Iterate config entries and return all jobs."""
     jobs: List[Job] = []
     for entry in companies:
         board = entry.get("board")
@@ -237,8 +267,10 @@ def scan_companies(companies: Iterable[dict]) -> List[Job]:
             continue
         try:
             log.info("fetching %s/%s", board, entry.get("slug") or entry.get("tenant"))
+            before = len(jobs)
             jobs.extend(fn(entry))
-        except Exception as e:  # don't let one bad entry kill the whole scan
+            log.info("  -> %d jobs", len(jobs) - before)
+        except Exception as e:
             log.warning("fetch failed for %s: %s", entry, e)
     return jobs
 
@@ -269,8 +301,5 @@ def resolve_single_url(url: str) -> Job | None:
                 if j.job_id == jid:
                     return j
     if "myworkdayjobs.com" in host:
-        # path: /<lang>/<site>/job/<location>/<slug>_<id>
-        # we don't have tenant/site in the URL host alone in a universal way,
-        # so let the user run a normal scan and pick by job_id from the CSV.
         log.info("workday single-URL resolve: run a full scan for that tenant, then use --job-id")
     return None
