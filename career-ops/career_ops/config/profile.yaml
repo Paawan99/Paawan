@@ -1,0 +1,169 @@
+# Paawan Shah -- personal profile used by career-ops.
+# Generated from resume on 2026-04-16. Edit freely.
+
+name: "Paawan Shah"
+email: "paawan.shah.9@gmail.com"
+phone: "+1 (672) 355-3352"
+linkedin: "https://www.linkedin.com/in/paawanshah/"
+github: "https://github.com/paawan99"
+
+# Based in Vancouver (UCW), open to anywhere in Canada.
+location: "Canada"
+
+# Source resume -- real path on Paawan's PC.
+resume_docx: "C:/Users/Paawan/OneDrive/Desktop/01_Career/Resumes_CoverLetters/Paawan.Shah.Resume.docx"
+
+# ----------------------------------------------------------------------
+# Target roles -- reflect your MBA (Finance) + CSC + IFC + retail banking
+# coursework and customer-service experience.
+# ----------------------------------------------------------------------
+target_titles:
+  - "Personal Banker"
+  - "Banking Advisor"
+  - "Financial Services Representative"
+  - "Customer Service Representative"
+  - "Client Advisor"
+  - "Account Manager"
+  - "Retail Banking Associate"
+  - "Investment Associate"
+  - "Operations Analyst"
+  - "Financial Analyst"
+  - "Risk Analyst"
+  - "Credit Analyst"
+  - "Compliance Analyst"
+  - "Business Analyst"
+
+# Open to anywhere in Canada, including fully remote roles.
+target_locations:
+  - "Anywhere in Canada"
+  - "Remote (Canada)"
+
+# Drop roles that are too senior or still a student-tier posting.
+exclude_titles:
+  - "Intern"
+  - "Co-op"
+  - "Director"
+  - "VP"
+  - "Vice President"
+  - "Senior Manager"
+  - "Head of"
+  - "Principal"
+  - "Chief"
+
+# ----------------------------------------------------------------------
+# Skills -- ONLY keywords the tailor will inject into your .docx.
+# Everything below is drawn from your resume, certifications, or MBA
+# coursework. Weights: must_have x3, strong x2, familiar x1.
+# ----------------------------------------------------------------------
+skills:
+  must_have:
+    - "customer service"
+    - "client engagement"
+    - "cash handling"
+    - "transaction processing"
+    - "Microsoft Excel"
+    - "attention to detail"
+    - "relationship building"
+
+  strong:
+    - "banking operations"
+    - "account servicing"
+    - "retail banking"
+    - "investment products"
+    - "mutual funds"
+    - "financial reporting"
+    - "financial documentation"
+    - "regulatory compliance"
+    - "credit evaluation"
+    - "risk analysis"
+    - "cross selling"
+    - "referral identification"
+    - "POS"
+    - "CRM"
+    - "client advisory"
+    - "financial analysis"
+    - "financial accounting"
+    - "privacy standards"
+    - "audit readiness"
+
+  familiar:
+    - "AML"
+    - "KYC"
+    - "FINTRAC"
+    - "wealth management"
+    - "core banking system"
+    - "digital authentication"
+    - "digital onboarding"
+    - "financial risk"
+    - "business risks"
+    - "growth drivers"
+
+# ----------------------------------------------------------------------
+# Used by the markdown CV template (`render` command).
+# ----------------------------------------------------------------------
+summary: >
+  Finance MBA from University Canada West with a BBA (Finance) from NMIMS
+  Mumbai, and hands-on customer-service experience processing 100+
+  transactions a day in a target-driven environment. Holder of the
+  Canadian Securities Course (CSC) and Investment Funds in Canada (IFC),
+  with coursework in retail banking, investment products, and financial
+  risk analysis. Looking to start a banking career with a Canadian bank
+  or credit union, anywhere in Canada.
+
+experience:
+  - company: "Washworld"
+    title: "Customer Service Representative"
+    dates: "Jul 2024 -- Present"
+    location: "Canada"
+    bullets:
+      - "Improved customer loyalty to 30% repeat visits by proactively engaging customers through client discovery and tailored service recommendations in a target-driven environment."
+      - "Recommended suitable options while following policies, confidentiality standards, and service-accuracy requirements."
+      - "Processed 100+ transactions per day with strict confidentiality and audit-ready documentation."
+      - "Drove self-serve adoption by coaching clients and colleagues on smartphone and QR-based mobile processes."
+
+  - company: "Purvesh Emporium"
+    title: "Customer Service Representative"
+    dates: "Dec 2022 -- Jan 2024"
+    location: "India"
+    bullets:
+      - "Grew repeat business with personalized consultations grounded in trust, respect, and genuine connection."
+      - "Resolved 30+ customer concerns using active listening, empathy, and tailored post-sale support."
+      - "Lifted average transaction value 20% through advice-driven recommendations while maintaining service-quality standards."
+      - "Sustained dependable processing during peak demand by managing high-volume transactions within operational controls."
+
+  - company: "D.K. Mehta"
+    title: "Finance Intern"
+    dates: "May 2022 -- Jul 2022"
+    location: "India"
+    bullets:
+      - "Applied critical thinking and data analysis to documentation checks for 7 files, credit evaluation, and preliminary risk analysis."
+      - "Reduced regulatory risk by performing control checks and validating adherence to regulatory requirements."
+      - "Safeguarded 11 files of sensitive financial data with organized, traceable documentation."
+      - "Supported senior professionals during audit activities with timely deliverables and collaborative follow-ups."
+
+certifications:
+  - "Canadian Securities Course (CSC) -- CSI"
+  - "Investment Funds in Canada (IFC) -- CSI"
+  - "Analyzing Growth Drivers & Business Risks -- CFI"
+
+education:
+  - school: "University Canada West"
+    degree: "Master of Business Administration (Finance)"
+    location: "Vancouver, Canada"
+    dates: ""
+    courses:
+      - "Financial Accounting & Reporting"
+      - "Investment Products & Mutual Funds"
+      - "Banking Operations & Compliance"
+    concentration:
+      - "Retail Banking & Financial Services"
+      - "Client Advisory & Investment Solutions"
+      - "Financial Risk Analysis"
+
+  - school: "NMIMS"
+    degree: "Bachelor of Business Administration (Finance)"
+    location: "Mumbai, India"
+    dates: ""
+
+languages:
+  - "English"

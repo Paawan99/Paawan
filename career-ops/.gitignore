@@ -1,0 +1,17 @@
+# User data — never commit
+career_ops/config/profile.yaml
+career_ops/resume/resume.docx
+career_ops/resume/*.pdf
+career_ops/output/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db

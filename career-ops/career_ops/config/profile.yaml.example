@@ -1,0 +1,135 @@
+# Your profile — single source of truth for matching + tailoring.
+# Copy this file to `profile.yaml` and edit. Field names matter:
+# the matcher reads `skills.must_have/strong/familiar`, `target_titles`,
+# and `exclude_titles` exactly as written here.
+
+name: "Paawan Shah"
+email: "you@example.com"
+phone: "+1 (xxx) xxx-xxxx"
+github: "https://github.com/paawan99"
+linkedin: "https://linkedin.com/in/paawan"
+
+# Your home base. Shown in the rendered CV header. The matcher doesn't
+# filter by this -- open to any Canadian city, everywhere in Canada.
+location: "Canada"
+
+# Absolute path to your source Word resume -- the tailor reads this and
+# writes a per-job copy under output/resumes/. On Windows use forward
+# slashes inside the quotes to avoid escape headaches.
+resume_docx: "C:/Users/Paawan/Documents/resume.docx"
+
+# ----------------------------------------------------------------------
+# What you're looking for
+# ----------------------------------------------------------------------
+# Substrings (case-insensitive) checked against job titles. A job title
+# containing any of these gets a small score boost.
+target_titles:
+  - "Business Analyst"
+  - "Data Analyst"
+  - "Financial Analyst"
+  - "Risk Analyst"
+  - "Credit Analyst"
+  - "Operations Analyst"
+  - "Compliance Analyst"
+  - "Software Developer"
+  - "Banking Advisor"
+  - "Personal Banker"
+
+# Locations you'd accept. Open to anywhere in Canada, including remote.
+# This is used informally for the rendered CV; the Workday scraper
+# already filters by country=Canada in companies.yaml, so every scanned
+# job is already Canada-based regardless of city.
+target_locations:
+  - "Anywhere in Canada"
+  - "Remote (Canada)"
+
+# Job titles to drop entirely. Match is substring, case-insensitive.
+exclude_titles:
+  - "Intern"
+  - "Co-op"
+  - "Director"
+  - "VP"
+  - "Vice President"
+  - "Senior Manager"
+  - "Head of"
+
+# ----------------------------------------------------------------------
+# Skills -- the ONLY keywords the tailor will inject into your resume.
+# We never invent skills. Edit each bucket to reflect what YOU actually
+# have. The matcher weights: must_have x3, strong x2, familiar x1.
+# ----------------------------------------------------------------------
+skills:
+  must_have:
+    # Core skills you genuinely lead with. Keep this list short (~5-10).
+    - "customer service"
+    - "Excel"
+    - "SQL"
+    - "data analysis"
+    - "financial analysis"
+    - "Microsoft Office"
+
+  strong:
+    # Banking/finance domain you have real exposure to.
+    - "AML"             # Anti-Money Laundering
+    - "KYC"             # Know Your Customer
+    - "FINTRAC"
+    - "credit analysis"
+    - "risk management"
+    - "loan processing"
+    - "account reconciliation"
+    - "wealth management"
+    - "retail banking"
+    - "Tableau"
+    - "Power BI"
+    - "Python"
+
+  familiar:
+    # Things you've touched and can speak to in an interview.
+    - "Salesforce"
+    - "Workday"
+    - "OSFI"
+    - "Basel III"
+    - "IFRS 9"
+    - "IFRS 17"
+    - "regulatory reporting"
+    - "fraud detection"
+    - "Java"
+    - "VBA"
+
+# ----------------------------------------------------------------------
+# Used by the markdown CV template (`render` command). Optional if you
+# only ever use the `tailor` command on an existing .docx.
+# ----------------------------------------------------------------------
+summary: >
+  Detail-oriented analyst open to opportunities anywhere in Canada, with
+  a background in financial services and customer-facing banking
+  operations. Comfortable with data analysis in Excel/SQL, AML/KYC
+  compliance workflows, and translating regulatory requirements into
+  clear processes. Looking to grow within a Canadian bank or credit union.
+
+experience:
+  - company: "Example Bank or Credit Union"
+    title: "Customer Service Representative / Personal Banker"
+    dates: "20XX -- Present"
+    location: "Canada"
+    bullets:
+      - "Opened and serviced personal/business accounts; completed KYC + AML reviews."
+      - "Reconciled daily cash positions and resolved transaction discrepancies."
+      - "Cross-sold credit, mortgage and investment products to qualified clients."
+
+education:
+  - school: "Your University / College"
+    degree: "Diploma / Bachelor's in Finance, Commerce, or related"
+    dates: "20XX -- 20XX"
+    location: "Canada"
+
+certifications:
+  # Common Canadian banking certs -- keep only the ones you actually have.
+  - "Canadian Securities Course (CSC) -- in progress"
+  # - "Investment Funds in Canada (IFC)"
+  # - "Personal Financial Planner (PFP)"
+  # - "Certified Anti-Money Laundering Specialist (CAMS)"
+
+languages:
+  - "English"
+  # - "French"   # bilingual is a real differentiator at RBC, BMO, NBC, Desjardins
