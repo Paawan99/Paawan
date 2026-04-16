@@ -1,30 +1,51 @@
-# Canadian banks, credit unions, and fintechs.
+# Sources to scan. Three backends:
 #
-# Most Canadian banks/CUs use Workday. Workday entries need:
-#   tenant: short tenant slug (lowercase)
-#   host:   the full myworkdayjobs.com host
-#   site:   the external careers site name (case-sensitive!)
-#   country: "Canada"  -> client-side filter to keep only Canadian postings
-#   fetch_descriptions: true  -> pulls full JD for the top N (needed for
-#                                 keyword matching to work well)
+# 1. workday    -- direct JSON API of Big Six banks + credit unions.
+#                  Needs tenant/host/site triple; sometimes wrong => 4xx.
+# 2. lever/greenhouse/ashby -- fintech direct board feeds.
+# 3. indeed_rss -- Indeed Canada search RSS. Aggregates Google Jobs,
+#                  LinkedIn, and direct banks. Lower-fidelity JD text
+#                  but maximum coverage. USE THIS FIRST.
 #
-# HOW TO FIND tenant/host/site FOR A WORKDAY CAREERS PAGE:
-#   1. Open the company's careers page in a browser.
-#   2. Open DevTools (F12) -> Network tab, filter for "jobs".
-#   3. Scroll the jobs list so a request fires.
-#   4. Look for a POST to: /wday/cxs/<TENANT>/<SITE>/jobs
-#      - the host (e.g. td.wd3.myworkdayjobs.com) goes in `host`
-#      - TENANT goes in `tenant` (usually same as the first word of the host)
-#      - SITE goes in `site` (case-sensitive, often "External" or
-#        "<Company>_Careers")
-#
-# Entries marked "# VERIFY" are my best guesses -- if a scan logs 404 or
-# 422 for one, open that bank's real careers page in a browser and
-# copy the values from DevTools as above.
+# Indeed RSS is the most reliable source for Canadian bank/CU postings
+# because it already indexes every bank whether or not we hit their ATS
+# directly. The Workday entries are a secondary source for full JD text.
 
 companies:
   # ===================================================================
-  # Big Six Canadian banks
+  # Indeed Canada RSS -- primary source (covers everything)
+  # ===================================================================
+  - { name: "Indeed: Personal Banker (Canada)",
+      board: indeed_rss, query: "Personal Banker", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Banking Advisor (Canada)",
+      board: indeed_rss, query: "Banking Advisor", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Financial Services Representative (Canada)",
+      board: indeed_rss, query: "Financial Services Representative", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Customer Service Representative bank (Canada)",
+      board: indeed_rss, query: "Customer Service Representative bank", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Client Advisor bank (Canada)",
+      board: indeed_rss, query: "Client Advisor bank", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Credit Analyst (Canada)",
+      board: indeed_rss, query: "Credit Analyst", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Financial Analyst (Canada)",
+      board: indeed_rss, query: "Financial Analyst", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Investment Associate (Canada)",
+      board: indeed_rss, query: "Investment Associate", location: "Canada", limit: 50 }
+
+  - { name: "Indeed: Credit Union (Canada)",
+      board: indeed_rss, query: "Credit Union", location: "Canada", limit: 50 }
+
+  # ===================================================================
+  # Workday -- direct bank APIs. The tenant/host/site values are BEST
+  # GUESSES and some will 4xx. When you find one that works, great;
+  # when one doesn't, Indeed RSS above already covers that bank.
   # ===================================================================
   - { name: "RBC",                board: workday, tenant: rbc,
       host: rbc.wd3.myworkdayjobs.com, site: RBC_Careers,
@@ -50,42 +71,12 @@ companies:
       host: nbc.wd3.myworkdayjobs.com, site: nbc_External_Career_site,
       country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
-  # ===================================================================
-  # Other Canadian banks / deposit-taking institutions
-  # ===================================================================
   - { name: "HSBC Canada",        board: workday, tenant: hsbc,
       host: hsbc.wd3.myworkdayjobs.com, site: HSBC,
       country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
-  - { name: "Laurentian Bank",    board: workday, tenant: lbcfg,
-      host: lbcfg.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  - { name: "Equitable Bank",     board: workday, tenant: eqbank,
-      host: eqbank.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  # ===================================================================
-  # Canadian credit unions
-  # ===================================================================
   - { name: "Vancity",            board: workday, tenant: vancity,
       host: vancity.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  - { name: "Coast Capital",      board: workday, tenant: coastcapitalsavings,
-      host: coastcapitalsavings.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  - { name: "Servus Credit Union", board: workday, tenant: servus,
-      host: servus.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  - { name: "Meridian CU",        board: workday, tenant: meridiancu,
-      host: meridiancu.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
-
-  - { name: "First West CU",      board: workday, tenant: firstwestcu,
-      host: firstwestcu.wd3.myworkdayjobs.com, site: External,
       country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Desjardins",         board: workday, tenant: desjardins,
@@ -93,20 +84,7 @@ companies:
       country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   # ===================================================================
-  # Canadian fintechs (Greenhouse / Lever / Ashby)
+  # Canadian fintechs (direct feeds)
   # ===================================================================
-  # Wealthsimple and Neo are the two I'm most confident about.
   - { name: "Wealthsimple",       board: lever,      slug: wealthsimple }
   - { name: "Neo Financial",      board: lever,      slug: neofinancial }
-
-  # Removed koho + float -- both 404'd (boards moved or slug changed).
-  # Add them back once you find the right board+slug by visiting the
-  # company's careers page and checking the URL.
-  # - { name: "Koho",              board: greenhouse, slug: <update> }
-  # - { name: "Float",             board: greenhouse, slug: <update> }
-
-  # Nuvei 422'd previously -- try again now that the country facet is
-  # off; if it still fails, the tenant/site below is probably wrong.
-  - { name: "Nuvei",              board: workday,    tenant: nuvei,
-      host: nuvei.wd3.myworkdayjobs.com, site: nuvei,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
