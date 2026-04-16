@@ -1,15 +1,4 @@
-"""career-ops CLI: scan -> match -> tailor -> apply.
-
-Subcommands:
-  scan    fetch all jobs listed in companies.yaml -> output/jobs.json
-  match   score scanned jobs against profile.yaml -> output/matches.csv
-  tailor  generate a tailored .docx (and optional PDF) for one match
-  apply   print the application URL + the tailored resume path
-  render  render a CV from profile only (santifer-style, no source .docx)
-
-This module imports heavy/optional deps lazily inside each subcommand
-so `--help` and unrelated commands work even on a minimal install.
-"""
+"""career-ops CLI: scan -> match -> tailor -> apply."""
 
 from __future__ import annotations
 
@@ -44,6 +33,8 @@ def _setup_logging(verbose: bool) -> None:
 
 def cmd_scan(args: argparse.Namespace) -> int:
     from .scraper import scan_companies, resolve_single_url
+    from .matcher import filter_since_days
+    from .models import Job
 
     DEFAULT_OUTPUT.mkdir(parents=True, exist_ok=True)
     if args.url:
@@ -51,33 +42,41 @@ def cmd_scan(args: argparse.Namespace) -> int:
         if not job:
             print(f"could not resolve {args.url}", file=sys.stderr)
             return 1
-        out = [job.to_dict()]
+        jobs = [job]
     else:
         companies = _load_yaml(Path(args.companies))
         if isinstance(companies, dict):
             companies = companies.get("companies", [])
         jobs = scan_companies(companies)
-        out = [j.to_dict() for j in jobs]
+
+    if args.since_days and args.since_days > 0:
+        before = len(jobs)
+        jobs = filter_since_days(jobs, args.since_days, keep_unknown=False)
+        print(f"recency filter: kept {len(jobs)} of {before} (<= {args.since_days} days old)")
 
     target = Path(args.output) / "jobs.json"
-    target.write_text(json.dumps(out, indent=2), encoding="utf-8")
-    print(f"wrote {len(out)} jobs -> {target}")
+    target.write_text(json.dumps([j.to_dict() for j in jobs], indent=2), encoding="utf-8")
+    print(f"wrote {len(jobs)} jobs -> {target}")
     return 0
 
 
 def cmd_match(args: argparse.Namespace) -> int:
-    from .matcher import match_all, filter_excluded
+    from .matcher import match_all, filter_excluded, filter_since_days
     from .models import Job
     from .exporter import write_matches_csv
 
     profile = _load_yaml(Path(args.profile))
     jobs_file = Path(args.jobs) if args.jobs else Path(args.output) / "jobs.json"
     if not jobs_file.exists():
-        sys.exit(f"missing: {jobs_file} — run `scan` first")
+        sys.exit(f"missing: {jobs_file} -- run `scan` first")
 
     raw = json.loads(jobs_file.read_text(encoding="utf-8"))
     jobs = [Job(**j) for j in raw]
     jobs = filter_excluded(jobs, profile)
+    if args.since_days and args.since_days > 0:
+        before = len(jobs)
+        jobs = filter_since_days(jobs, args.since_days, keep_unknown=args.keep_undated)
+        print(f"recency filter: kept {len(jobs)} of {before} (<= {args.since_days} days old)")
     reports = match_all(jobs, profile, min_score=args.min_score)
 
     csv_path = Path(args.output) / "matches.csv"
@@ -89,14 +88,13 @@ def cmd_match(args: argparse.Namespace) -> int:
 
 
 def _find_match(args: argparse.Namespace):
-    """Re-run matching to find the requested job by id or URL."""
     from .matcher import match_all, filter_excluded
     from .models import Job
 
     profile = _load_yaml(Path(args.profile))
     jobs_file = Path(args.jobs) if args.jobs else Path(args.output) / "jobs.json"
     if not jobs_file.exists():
-        sys.exit(f"missing: {jobs_file} — run `scan` first")
+        sys.exit(f"missing: {jobs_file} -- run `scan` first")
     raw = json.loads(jobs_file.read_text(encoding="utf-8"))
     jobs = [Job(**j) for j in raw]
     jobs = filter_excluded(jobs, profile)
@@ -178,12 +176,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("scan", help="fetch all configured job listings")
     s.add_argument("--url", help="resolve a single job URL instead of scanning")
+    s.add_argument("--since-days", type=int, default=0,
+                   help="only keep postings from the last N days (requires a parseable date)")
     s.set_defaults(func=cmd_scan)
 
     m = sub.add_parser("match", help="score scanned jobs against profile")
     m.add_argument("--jobs", help="path to jobs.json (default: output/jobs.json)")
     m.add_argument("--min-score", type=float, default=10.0)
     m.add_argument("--top", type=int, default=20)
+    m.add_argument("--since-days", type=int, default=0,
+                   help="only score postings from the last N days (e.g. --since-days 7)")
+    m.add_argument("--keep-undated", action="store_true",
+                   help="when using --since-days, keep postings with no parseable date")
     m.set_defaults(func=cmd_match)
 
     t = sub.add_parser("tailor", help="produce a tailored resume for a job")
