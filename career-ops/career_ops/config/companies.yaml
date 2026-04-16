@@ -1,0 +1,37 @@
+# Companies to scan. `board` is one of: greenhouse, ashby, lever.
+# `slug` is the company's board handle.
+#
+# How to find the slug:
+#   Greenhouse: job URL looks like https://boards.greenhouse.io/<slug>/jobs/...
+#   Ashby:      https://jobs.ashbyhq.com/<slug>
+#   Lever:      https://jobs.lever.co/<slug>
+#
+# Curated seed list — add/remove to match your targets.
+
+companies:
+  # --- Greenhouse ---
+  - { name: Anthropic,        board: greenhouse, slug: anthropic }
+  - { name: Stripe,            board: greenhouse, slug: stripe }
+  - { name: Airbnb,            board: greenhouse, slug: airbnb }
+  - { name: Robinhood,         board: greenhouse, slug: robinhood }
+  - { name: Coinbase,          board: greenhouse, slug: coinbase }
+  - { name: Databricks,        board: greenhouse, slug: databricks }
+  - { name: DoorDash,          board: greenhouse, slug: doordash }
+  - { name: Instacart,         board: greenhouse, slug: instacart }
+  - { name: "Two Sigma",       board: greenhouse, slug: twosigma }
+  - { name: "Jane Street",     board: greenhouse, slug: janestreet }
+  - { name: "Point72",         board: greenhouse, slug: point72 }
+
+  # --- Ashby ---
+  - { name: OpenAI,            board: ashby,      slug: openai }
+  - { name: Ramp,              board: ashby,      slug: ramp }
+  - { name: Linear,            board: ashby,      slug: linear }
+  - { name: Vanta,             board: ashby,      slug: vanta }
+  - { name: Notion,            board: ashby,      slug: notion }
+  - { name: Posthog,           board: ashby,      slug: posthog }
+
+  # --- Lever ---
+  - { name: Netflix,           board: lever,      slug: netflix }
+  - { name: Palantir,          board: lever,      slug: palantir }
+  - { name: Shopify,           board: lever,      slug: shopify }
+  - { name: Figma,             board: lever,      slug: figma }

@@ -1,0 +1,98 @@
+# Your profile — the single source of truth about what you have and what you want.
+# Copy to profile.yaml and fill in.
+
+name: "Paawan Shah"
+email: "you@example.com"
+github: "https://github.com/paawan99"
+linkedin: "https://linkedin.com/in/paawan"
+location: "Remote (US) / New York"
+
+# --- Target jobs ---
+targets:
+  titles:
+    - "Quantitative Researcher"
+    - "Quantitative Developer"
+    - "Machine Learning Engineer"
+    - "Software Engineer"
+    - "Data Scientist"
+  # Each posting is also checked against these; a location match boosts score.
+  locations:
+    - "Remote"
+    - "New York"
+    - "NYC"
+    - "US"
+  # Seniority filter: postings matching any of these phrases are down-ranked.
+  exclude_titles:
+    - "Director"
+    - "VP"
+    - "Principal"
+    - "Staff"
+  # Threshold out of 100. Below this, jobs are listed as "low match" only.
+  min_match_score: 55
+
+# --- Your skills / keyword dictionary ---
+# These are the ONLY keywords the tailor will inject — we never claim
+# skills you don't have. Add variants (case doesn't matter).
+skills:
+  languages:
+    - Python
+    - C++
+    - SQL
+    - JavaScript
+    - TypeScript
+    - Bash
+  frameworks:
+    - PyTorch
+    - TensorFlow
+    - scikit-learn
+    - pandas
+    - NumPy
+    - FastAPI
+    - React
+  quant:
+    - portfolio optimization
+    - mean-variance
+    - Black-Litterman
+    - backtesting
+    - factor models
+    - Monte Carlo
+    - risk parity
+    - Sharpe ratio
+  ml:
+    - deep learning
+    - reinforcement learning
+    - NLP
+    - LLMs
+    - fine-tuning
+    - embeddings
+    - transformers
+  infra:
+    - Docker
+    - Kubernetes
+    - AWS
+    - GCP
+    - Linux
+    - Git
+    - CI/CD
+
+# --- Short pitch used by the markdown CV template ---
+summary: >
+  Quantitative developer and ML engineer with hands-on experience in
+  portfolio optimization, backtesting, and production Python. I build
+  research-to-prod pipelines and care about numerical correctness,
+  reproducibility, and clean interfaces.
+
+# --- Experience (for the markdown CV template only) ---
+experience:
+  - company: "Self / Research"
+    title: "Quantitative Developer"
+    dates: "2023 — Present"
+    bullets:
+      - "Built a CPU-only quantitative portfolio optimization framework."
+      - "Implemented mean-variance, Black-Litterman, and risk-parity solvers."
+      - "Backtesting harness with rolling windows and turnover constraints."
+
+education:
+  - school: "Your University"
+    degree: "B.S. in ..."
+    dates: "20XX — 20XX"
