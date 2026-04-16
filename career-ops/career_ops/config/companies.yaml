@@ -4,97 +4,109 @@
 #   tenant: short tenant slug (lowercase)
 #   host:   the full myworkdayjobs.com host
 #   site:   the external careers site name (case-sensitive!)
-#   country: optional locale facet, e.g. "Canada"
-#   fetch_descriptions: true  -> pulls full JD for the top N (slower but
-#                                 needed for keyword matching to work well)
+#   country: "Canada"  -> client-side filter to keep only Canadian postings
+#   fetch_descriptions: true  -> pulls full JD for the top N (needed for
+#                                 keyword matching to work well)
 #
-# How to find tenant/host/site for any Workday careers page:
+# HOW TO FIND tenant/host/site FOR A WORKDAY CAREERS PAGE:
 #   1. Open the company's careers page in a browser.
-#   2. Open DevTools -> Network tab, filter for "jobs".
-#   3. Look for a POST to /wday/cxs/<TENANT>/<SITE>/jobs and copy
-#      the host (e.g. td.wd3.myworkdayjobs.com), tenant, and site.
+#   2. Open DevTools (F12) -> Network tab, filter for "jobs".
+#   3. Scroll the jobs list so a request fires.
+#   4. Look for a POST to: /wday/cxs/<TENANT>/<SITE>/jobs
+#      - the host (e.g. td.wd3.myworkdayjobs.com) goes in `host`
+#      - TENANT goes in `tenant` (usually same as the first word of the host)
+#      - SITE goes in `site` (case-sensitive, often "External" or
+#        "<Company>_Careers")
 #
-# I've filled in best-known values below. VERIFY each one against the
-# company's live careers page -- Workday tenants occasionally change
-# region (wd1/wd3/wd5) or rename their site.
+# Entries marked "# VERIFY" are my best guesses -- if a scan logs 404 or
+# 422 for one, open that bank's real careers page in a browser and
+# copy the values from DevTools as above.
 
 companies:
   # ===================================================================
-  # Big Six Canadian banks (all on Workday)
+  # Big Six Canadian banks
   # ===================================================================
   - { name: "RBC",                board: workday, tenant: rbc,
       host: rbc.wd3.myworkdayjobs.com, site: RBC_Careers,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   - { name: "TD Bank",            board: workday, tenant: td,
       host: td.wd3.myworkdayjobs.com, site: TD_External_Career_Site,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   - { name: "Scotiabank",         board: workday, tenant: scotiabank,
       host: scotiabank.wd3.myworkdayjobs.com, site: Scotiabank_Careers,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   - { name: "BMO",                board: workday, tenant: bmo,
       host: bmo.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   - { name: "CIBC",               board: workday, tenant: cibc,
       host: cibc.wd3.myworkdayjobs.com, site: search,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   - { name: "National Bank",      board: workday, tenant: nbc,
       host: nbc.wd3.myworkdayjobs.com, site: nbc_External_Career_site,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   # ===================================================================
-  # Other Canadian banks
+  # Other Canadian banks / deposit-taking institutions
   # ===================================================================
   - { name: "HSBC Canada",        board: workday, tenant: hsbc,
       host: hsbc.wd3.myworkdayjobs.com, site: HSBC,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Laurentian Bank",    board: workday, tenant: lbcfg,
       host: lbcfg.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Equitable Bank",     board: workday, tenant: eqbank,
       host: eqbank.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   # ===================================================================
   # Canadian credit unions
   # ===================================================================
   - { name: "Vancity",            board: workday, tenant: vancity,
       host: vancity.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Coast Capital",      board: workday, tenant: coastcapitalsavings,
       host: coastcapitalsavings.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Servus Credit Union", board: workday, tenant: servus,
       host: servus.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Meridian CU",        board: workday, tenant: meridiancu,
       host: meridiancu.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "First West CU",      board: workday, tenant: firstwestcu,
       host: firstwestcu.wd3.myworkdayjobs.com, site: External,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
 
   - { name: "Desjardins",         board: workday, tenant: desjardins,
       host: desjardins.wd3.myworkdayjobs.com, site: Desjardins_Career_Site,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 50 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 50 } # VERIFY
 
   # ===================================================================
-  # Canadian fintechs (Greenhouse / Lever — usually full JD inline)
+  # Canadian fintechs (Greenhouse / Lever / Ashby)
   # ===================================================================
-  - { name: "Wealthsimple",       board: greenhouse, slug: wealthsimple }
+  # Wealthsimple and Neo are the two I'm most confident about.
+  - { name: "Wealthsimple",       board: lever,      slug: wealthsimple }
   - { name: "Neo Financial",      board: lever,      slug: neofinancial }
-  - { name: "Koho",               board: greenhouse, slug: koho }
-  - { name: "Float",              board: greenhouse, slug: float }
+
+  # Removed koho + float -- both 404'd (boards moved or slug changed).
+  # Add them back once you find the right board+slug by visiting the
+  # company's careers page and checking the URL.
+  # - { name: "Koho",              board: greenhouse, slug: <update> }
+  # - { name: "Float",             board: greenhouse, slug: <update> }
+
+  # Nuvei 422'd previously -- try again now that the country facet is
+  # off; if it still fails, the tenant/site below is probably wrong.
   - { name: "Nuvei",              board: workday,    tenant: nuvei,
       host: nuvei.wd3.myworkdayjobs.com, site: nuvei,
-      country: Canada, fetch_descriptions: true, descriptions_limit: 30 }
+      country: Canada, fetch_descriptions: true, descriptions_limit: 30 } # VERIFY
