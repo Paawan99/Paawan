@@ -1,21 +1,23 @@
-"""Job-board scrapers using public JSON endpoints.
+"""Job-board scrapers using public JSON / RSS endpoints.
 
 Boards covered:
-- Greenhouse, Ashby, Lever  -- common for tech/fintech
-- Workday CXS               -- used by all Big Six Canadian banks and most
-                               large credit unions
+- Greenhouse, Ashby, Lever  -- tech/fintech company career pages
+- Workday CXS               -- Big Six Canadian banks + large credit unions
+- Indeed Canada RSS         -- aggregator that covers Google Jobs, LinkedIn,
+                               and direct company posts. Best free way to
+                               get "everything across Canada" in one source.
 
-All endpoints are public and unauthenticated. Anything else (LinkedIn,
-Indeed, custom HR portals) needs HTML scraping or a paid API and is out
-of scope for this module.
+Google Jobs has no free API, and scraping google.com triggers CAPTCHA
+quickly; Indeed's RSS is the realistic free alternative.
 """
 
 from __future__ import annotations
 
 import logging
 import time
+import xml.etree.ElementTree as ET
 from typing import Iterable, List
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 
 import requests
 
@@ -81,8 +83,7 @@ def fetch_greenhouse(slug: str) -> List[Job]:
     out: List[Job] = []
     for j in data["jobs"]:
         out.append(Job(
-            source="greenhouse",
-            company=slug,
+            source="greenhouse", company=slug,
             job_id=str(j.get("id", "")),
             title=j.get("title", ""),
             location=(j.get("location") or {}).get("name", ""),
@@ -102,8 +103,7 @@ def fetch_ashby(slug: str) -> List[Job]:
     out: List[Job] = []
     for j in data["jobs"]:
         out.append(Job(
-            source="ashby",
-            company=slug,
+            source="ashby", company=slug,
             job_id=str(j.get("id", "")),
             title=j.get("title", ""),
             location=j.get("location", ""),
@@ -124,8 +124,7 @@ def fetch_lever(slug: str) -> List[Job]:
     for j in data:
         cats = j.get("categories", {}) or {}
         out.append(Job(
-            source="lever",
-            company=slug,
+            source="lever", company=slug,
             job_id=str(j.get("id", "")),
             title=j.get("text", ""),
             location=cats.get("location", ""),
@@ -138,14 +137,6 @@ def fetch_lever(slug: str) -> List[Job]:
 
 
 def fetch_workday(entry: dict) -> List[Job]:
-    """Workday CXS API. Requires {tenant, host, site} in the config entry.
-
-    Workday rejects non-browser clients with 422. We:
-      - use a persistent session so cookies set by the site page warm-up
-        are sent with the XHR POST
-      - use a browser User-Agent, Accept-Language, Referer, and Origin
-      - send an empty appliedFacets body (country is filtered client-side)
-    """
     tenant = entry.get("tenant")
     host = entry.get("host")
     site = entry.get("site")
@@ -170,7 +161,6 @@ def fetch_workday(entry: dict) -> List[Job]:
         "Origin": f"https://{host}",
     })
 
-    # Warm-up: GET the public site page so the session picks up cookies.
     try:
         warm = sess.get(base, timeout=TIMEOUT)
         if warm.status_code == 404:
@@ -184,12 +174,7 @@ def fetch_workday(entry: dict) -> List[Job]:
     offset = 0
     page = 20
     while True:
-        body = {
-            "appliedFacets": {},
-            "limit": page,
-            "offset": offset,
-            "searchText": keyword,
-        }
+        body = {"appliedFacets": {}, "limit": page, "offset": offset, "searchText": keyword}
         try:
             r = sess.post(api, json=body, timeout=TIMEOUT)
             if r.status_code == 404:
@@ -208,7 +193,6 @@ def fetch_workday(entry: dict) -> List[Job]:
         postings = data.get("jobPostings", []) or []
         if not postings:
             break
-
         for j in postings:
             location_text = j.get("locationsText", "")
             if canada_only and not _is_canadian(location_text):
@@ -216,8 +200,7 @@ def fetch_workday(entry: dict) -> List[Job]:
             ext_path = j.get("externalPath", "")
             url = f"https://{host}{ext_path}" if ext_path.startswith("/") else ext_path
             out.append(Job(
-                source="workday",
-                company=tenant,
+                source="workday", company=tenant,
                 job_id=str(j.get("bulletFields", [""])[0] or ext_path.rsplit("/", 1)[-1]),
                 title=j.get("title", ""),
                 location=location_text,
@@ -226,7 +209,6 @@ def fetch_workday(entry: dict) -> List[Job]:
                 description_html=j.get("shortDescription", ""),
                 posted_at=j.get("postedOn", ""),
             ))
-
         total = data.get("total", 0)
         offset += page
         if offset >= total or len(postings) < page:
@@ -247,11 +229,82 @@ def fetch_workday(entry: dict) -> List[Job]:
     return out
 
 
+def fetch_indeed_rss(entry: dict) -> List[Job]:
+    """Indeed Canada RSS feed for a keyword+location search.
+
+    entry shape:
+      {board: indeed_rss, query: "Personal Banker", location: "Canada"}
+
+    Notes:
+    - Indeed's item titles follow "Job Title - Company - City, Province".
+    - Descriptions are truncated by Indeed to ~200 chars, so matching
+      quality is lower than on direct Greenhouse/Workday descriptions.
+    - Indeed occasionally blocks non-browser clients; we use a browser UA.
+    """
+    query = (entry.get("query") or "").strip()
+    location = (entry.get("location") or "Canada").strip()
+    domain = entry.get("domain", "ca.indeed.com")
+    limit = int(entry.get("limit", 50))
+    if not query:
+        log.warning("indeed_rss entry missing query: %s", entry)
+        return []
+
+    url = f"https://{domain}/rss?q={quote_plus(query)}&l={quote_plus(location)}&limit={limit}"
+    try:
+        r = requests.get(url, headers={
+            "User-Agent": BROWSER_UA,
+            "Accept": "application/rss+xml, application/xml, text/xml",
+        }, timeout=TIMEOUT)
+        if 400 <= r.status_code < 500:
+            log.warning("%d %s", r.status_code, url)
+            return []
+        r.raise_for_status()
+        root = ET.fromstring(r.content)
+    except (requests.RequestException, ET.ParseError) as e:
+        log.warning("indeed_rss failed for %s: %s", url, e)
+        return []
+
+    out: List[Job] = []
+    for item in root.findall(".//item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        desc = (item.findtext("description") or "").strip()
+        pub = (item.findtext("pubDate") or "").strip()
+
+        # Indeed title format: "Role - Company - City, Province"
+        parts = [p.strip() for p in title.split(" - ")]
+        if len(parts) >= 3:
+            job_title, company, loc = parts[0], parts[-2], parts[-1]
+        elif len(parts) == 2:
+            job_title, company, loc = parts[0], parts[1], location
+        else:
+            job_title, company, loc = title, "unknown", location
+
+        # Extract Indeed's job key (jk=) as a stable id.
+        jid = link
+        if "jk=" in link:
+            jid = link.split("jk=", 1)[1].split("&", 1)[0]
+
+        out.append(Job(
+            source="indeed",
+            company=company,
+            job_id=jid,
+            title=job_title,
+            location=loc,
+            department="",
+            url=link,
+            description_html=desc,
+            posted_at=pub,
+        ))
+    return out
+
+
 _DISPATCH = {
     "greenhouse": lambda e: fetch_greenhouse(e["slug"]),
     "ashby":      lambda e: fetch_ashby(e["slug"]),
     "lever":      lambda e: fetch_lever(e["slug"]),
     "workday":    fetch_workday,
+    "indeed_rss": fetch_indeed_rss,
 }
 
 
@@ -264,7 +317,9 @@ def scan_companies(companies: Iterable[dict]) -> List[Job]:
             log.warning("skipping unknown board: %s", entry)
             continue
         try:
-            log.info("fetching %s/%s", board, entry.get("slug") or entry.get("tenant"))
+            label = (entry.get("slug") or entry.get("tenant")
+                     or entry.get("query") or entry.get("name") or "?")
+            log.info("fetching %s/%s", board, label)
             before = len(jobs)
             jobs.extend(fn(entry))
             log.info("  -> %d jobs", len(jobs) - before)
