@@ -1,98 +1,135 @@
-# Your profile — the single source of truth about what you have and what you want.
-# Copy to profile.yaml and fill in.
+# Your profile — single source of truth for matching + tailoring.
+# Copy this file to `profile.yaml` and edit. Field names matter:
+# the matcher reads `skills.must_have/strong/familiar`, `target_titles`,
+# and `exclude_titles` exactly as written here.
 
 name: "Paawan Shah"
 email: "you@example.com"
+phone: "+1 (xxx) xxx-xxxx"
 github: "https://github.com/paawan99"
 linkedin: "https://linkedin.com/in/paawan"
-location: "Remote (US) / New York"
 
-# --- Target jobs ---
-targets:
-  titles:
-    - "Quantitative Researcher"
-    - "Quantitative Developer"
-    - "Machine Learning Engineer"
-    - "Software Engineer"
-    - "Data Scientist"
-  # Each posting is also checked against these; a location match boosts score.
-  locations:
-    - "Remote"
-    - "New York"
-    - "NYC"
-    - "US"
-  # Seniority filter: postings matching any of these phrases are down-ranked.
-  exclude_titles:
-    - "Director"
-    - "VP"
-    - "Principal"
-    - "Staff"
-  # Threshold out of 100. Below this, jobs are listed as "low match" only.
-  min_match_score: 55
+# Your home base. Used in the rendered CV header and (informally) in matching.
+location: "Toronto, ON, Canada"
 
-# --- Your skills / keyword dictionary ---
-# These are the ONLY keywords the tailor will inject — we never claim
-# skills you don't have. Add variants (case doesn't matter).
+# Absolute path to your source Word resume — the tailor reads this and
+# writes a per-job copy under output/resumes/.
+resume_docx: "/Users/paawan/Documents/resume.docx"
+
+# ----------------------------------------------------------------------
+# What you're looking for
+# ----------------------------------------------------------------------
+# Substrings (case-insensitive) checked against job titles. A job title
+# containing any of these gets a small score boost via the matcher's
+# title-token bonus.
+target_titles:
+  - "Business Analyst"
+  - "Data Analyst"
+  - "Financial Analyst"
+  - "Risk Analyst"
+  - "Credit Analyst"
+  - "Operations Analyst"
+  - "Compliance Analyst"
+  - "Software Developer"
+  - "Banking Advisor"
+
+# Cities/regions you'd accept. Used for CV header context only — the
+# Workday scraper already filters by country=Canada in companies.yaml.
+target_locations:
+  - "Toronto"
+  - "Mississauga"
+  - "Vancouver"
+  - "Montreal"
+  - "Calgary"
+  - "Remote (Canada)"
+
+# Job titles to drop entirely. Match is substring, case-insensitive.
+exclude_titles:
+  - "Intern"
+  - "Co-op"
+  - "Director"
+  - "VP"
+  - "Vice President"
+  - "Senior Manager"
+  - "Head of"
+
+# ----------------------------------------------------------------------
+# Skills — the ONLY keywords the tailor will inject into your resume.
+# We never invent skills. Edit each bucket to reflect what YOU actually
+# have. The matcher weights: must_have x3, strong x2, familiar x1.
+# ----------------------------------------------------------------------
 skills:
-  languages:
-    - Python
-    - C++
-    - SQL
-    - JavaScript
-    - TypeScript
-    - Bash
-  frameworks:
-    - PyTorch
-    - TensorFlow
-    - scikit-learn
-    - pandas
-    - NumPy
-    - FastAPI
-    - React
-  quant:
-    - portfolio optimization
-    - mean-variance
-    - Black-Litterman
-    - backtesting
-    - factor models
-    - Monte Carlo
-    - risk parity
-    - Sharpe ratio
-  ml:
-    - deep learning
-    - reinforcement learning
-    - NLP
-    - LLMs
-    - fine-tuning
-    - embeddings
-    - transformers
-  infra:
-    - Docker
-    - Kubernetes
-    - AWS
-    - GCP
-    - Linux
-    - Git
-    - CI/CD
+  must_have:
+    # Core skills you genuinely lead with. Keep this list short (~5-10).
+    - "customer service"
+    - "Excel"
+    - "SQL"
+    - "data analysis"
+    - "financial analysis"
+    - "Microsoft Office"
 
-# --- Short pitch used by the markdown CV template ---
+  strong:
+    # Banking/finance domain you have real exposure to.
+    - "AML"             # Anti-Money Laundering
+    - "KYC"             # Know Your Customer
+    - "FINTRAC"
+    - "credit analysis"
+    - "risk management"
+    - "loan processing"
+    - "account reconciliation"
+    - "wealth management"
+    - "retail banking"
+    - "Tableau"
+    - "Power BI"
+    - "Python"
+
+  familiar:
+    # Things you've touched and can speak to in an interview.
+    - "Salesforce"
+    - "Workday"
+    - "OSFI"
+    - "Basel III"
+    - "IFRS 9"
+    - "IFRS 17"
+    - "regulatory reporting"
+    - "fraud detection"
+    - "Java"
+    - "VBA"
+
+# ----------------------------------------------------------------------
+# Used by the markdown CV template (`render` command). Optional if you
+# only ever use the `tailor` command on an existing .docx.
+# ----------------------------------------------------------------------
 summary: >
-  Quantitative developer and ML engineer with hands-on experience in
-  portfolio optimization, backtesting, and production Python. I build
-  research-to-prod pipelines and care about numerical correctness,
-  reproducibility, and clean interfaces.
+  Detail-oriented analyst with a background in financial services and
+  customer-facing banking operations. Comfortable with data analysis in
+  Excel/SQL, AML/KYC compliance workflows, and translating regulatory
+  requirements into clear processes. Looking to grow within a Canadian
+  bank or credit union.
 
-# --- Experience (for the markdown CV template only) ---
 experience:
-  - company: "Self / Research"
-    title: "Quantitative Developer"
-    dates: "2023 — Present"
+  - company: "Example Bank or Credit Union"
+    title: "Customer Service Representative / Personal Banker"
+    dates: "20XX — Present"
+    location: "Toronto, ON"
     bullets:
-      - "Built a CPU-only quantitative portfolio optimization framework."
-      - "Implemented mean-variance, Black-Litterman, and risk-parity solvers."
-      - "Backtesting harness with rolling windows and turnover constraints."
+      - "Opened and serviced personal/business accounts; completed KYC + AML reviews."
+      - "Reconciled daily cash positions and resolved transaction discrepancies."
+      - "Cross-sold credit, mortgage and investment products to qualified clients."
 
 education:
-  - school: "Your University"
-    degree: "B.S. in ..."
+  - school: "Your University / College"
+    degree: "Diploma / Bachelor's in Finance, Commerce, or related"
     dates: "20XX — 20XX"
+    location: "Canada"
+
+certifications:
+  # Common Canadian banking certs — keep only the ones you actually have.
+  - "Canadian Securities Course (CSC) — in progress"
+  # - "Investment Funds in Canada (IFC)"
+  # - "Personal Financial Planner (PFP)"
+  # - "Certified Anti-Money Laundering Specialist (CAMS)"
+
+languages:
+  - "English"
+  # - "French"   # bilingual is a real differentiator at RBC, BMO, NBC, Desjardins
